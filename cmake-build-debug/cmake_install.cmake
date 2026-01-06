@@ -1,4 +1,4 @@
-# Install script for directory: D:/GitHub_Project/Engineering_Robot_H723
+# Install script for directory: D:/Users/Gleam/Desktop/project/Hero_robot/Hero_Robot_H723/Hero_Robot_H723
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "D:/GitHub_Project/Engineering_Robot_H723/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/Users/Gleam/Desktop/project/Hero_robot/Hero_Robot_H723/Hero_Robot_H723/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

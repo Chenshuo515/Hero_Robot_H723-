@@ -9,11 +9,7 @@
 #include "semphr.h"
 #include <string.h>
 #include "cmd_task.h"
-#include "rc_sbus.h"
-#include "arm_math.h"
-
-extern sbus_data_t sbus_data_fdb;
-
+#include "rm_module.h"
 
 
 
@@ -22,11 +18,13 @@ void RefereeTask_Entry(void const * argument)
 {
     /*裁判系统初始化*/
     referee_system_init();
-    sbus_data_init();
+    #ifdef BSP_USING_RC_DBUS
+        dbus_data_init();
+    #else
+        //    sbus_data_init();
+    #endif
 
     for (;;) {
-
-            remote_to_cmd_sbus();
 
 
         vTaskDelay(1);

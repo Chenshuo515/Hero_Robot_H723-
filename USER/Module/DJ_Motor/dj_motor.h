@@ -16,6 +16,7 @@
 #define _DJI_MOTOR_H
 
 #include "motor_def.h"
+#include "bsp_fdcan.h"
 #include <cmsis_os.h>
 #include <stm32h7xx_hal.h>
 extern FDCAN_HandleTypeDef hfdcan1;
@@ -48,7 +49,8 @@ typedef struct
 typedef struct dji_motor_object
 {
     FDCAN_HandleTypeDef  *can;                // 电机挂载CAN句柄
-    uint8_t can_id;                         // 电机CAN id CAN1为1，CAN2为2
+    const char *can_name;                    //CAN name
+    uint8_t can_id;                         // 电机CAN id CAN1为1，CAN2为2,CAN3为3
     dji_motor_measure_t measure;            // 电机测量值
 
     uint32_t tx_id;                         // 发送id(主发)
@@ -107,7 +109,7 @@ void dji_motor_enable(dji_motor_object_t *motor);
  * @param id 接收到的报文的id
  * @param data 接收到的报文的数据
  */
-int dji_motot_rx_callback(uint32_t id, uint8_t *data);
+int dji_motot_rx_callback(uint8_t can_id,uint32_t id, uint8_t *data);
 
 
 #endif /* _DJI_MOTOR_H */

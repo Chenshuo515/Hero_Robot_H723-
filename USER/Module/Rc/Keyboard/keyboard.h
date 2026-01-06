@@ -1,7 +1,6 @@
 #ifndef RTTHREAD_KEYBOARD_H
 #define RTTHREAD_KEYBOARD_H
 
-#include <rtthread.h>
 #include "rm_config.h"
 
 /**
@@ -47,8 +46,10 @@ typedef struct
     /* 键盘按键状态 */
     kb_state_e e_sta; //E键按键状态
     kb_state_e f_sta; //F键按键状态
-    kb_state_e shift_sta; //SHIFT键按键状态
+    kb_state_e shift_sta; //shift键按键状态
+    kb_state_e ctrl_sta; //ctrl键按键状态
     kb_state_e v_sta; //V键按键状态
+    kb_state_e b_sta;//B按键状态
 
     uint16_t lk_cnt;
     uint16_t rk_cnt;

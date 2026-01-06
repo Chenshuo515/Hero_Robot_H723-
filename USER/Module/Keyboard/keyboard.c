@@ -10,14 +10,13 @@
 #include "ramp.h"
 #include "chassis_task.h"
 #include "rm_task.h"
-#include "pump.h"
 #include "DMmotor_task.h"
 
 /* key acceleration time */
 #define KEY_ACC_TIME     1700  //ms
 
 extern struct referee_fdb_msg referee_fdb;
-extern struct chassis_cmd_msg chassis_cmd;
+static struct chassis_cmd_msg chassis_cmd;
 extern ramp_obj_t *km_vx_ramp;//x轴控制斜坡
 extern ramp_obj_t *km_vy_ramp;//y周控制斜坡
 extern ramp_obj_t *km_vw_ramp; // 旋转控制斜坡，需在外部定义
@@ -38,7 +37,6 @@ static float base_delta_w = MAX_CHASSIS_VW_SPEED * GIMBAL_PERIOD / KEY_ACC_TIME;
 #define MICRO_DECAY           0.95f   // 微调模式衰减系数
 #define DEAD_ZONE             5.0f    // 速度死区(mm/s)
 
-pump_mode_e pump_mode = PUMP_INIT;
 
 // 全局键盘控制对象定义
 keyboard_control_t keyboard = {
@@ -168,11 +166,9 @@ void PC_keyboard_mouse(const pc_control_t *pc_control)
 //    pump_control(keyboard.x);
     // X按键用于打开气泵
     if(keyboard.x.state == KEY_PRESS_ONCE) {
-        pump_mode = PUMP_OPEN;
     }
     // Z按键用于关闭气泵
     if(keyboard.z.state == KEY_PRESS_ONCE) {
-        pump_mode = PUMP_CLOSE;
     }
 
 

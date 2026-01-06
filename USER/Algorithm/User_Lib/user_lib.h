@@ -1,9 +1,42 @@
-#ifndef USER_LIB_H
-#define USER_LIB_H
-//#include "struct_typedef.h"
-#include <stdint.h>
-#include "cmsis_os.h"
-#include "stm32h7xx_hal.h"
+/**
+ ******************************************************************************
+ * @file     user_lib.h
+ * @author  Wang Hongxi
+ * @version V1.0.0
+ * @date    2021/2/18
+ * @brief
+ ******************************************************************************
+ * @attention
+ *
+ ******************************************************************************
+ */
+#ifndef _USER_LIB_H
+#define _USER_LIB_H
+
+#include "stdint.h"
+#include "stm32h723xx.h"
+#include "arm_math.h"
+
+
+#ifndef user_malloc
+#ifdef _CMSIS_OS_H
+#define user_malloc pvPortMalloc
+#else
+#define user_malloc malloc
+#endif
+#endif
+
+#define msin(x) (arm_sin_f32(x))
+#define mcos(x) (arm_cos_f32(x))
+
+typedef arm_matrix_instance_f32 mat;
+// 若运算速度不够,可以使用q31代替f32,但是精度会降低
+#define MatAdd arm_mat_add_f32
+#define MatSubtract arm_mat_sub_f32
+#define MatMultiply arm_mat_mult_f32
+#define MatTranspose arm_mat_trans_f32
+#define MatInverse arm_mat_inverse_f32
+void MatInit(mat *m, uint8_t row, uint8_t col);
 
 /* boolean type definitions */
 #ifndef TRUE
@@ -51,52 +84,43 @@
 #define VAL_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define VAL_MAX(a, b) ((a) > (b) ? (a) : (b))
 
-typedef struct __attribute__((packed))
-{
-    float input;        //输入数据
-    float out;          //输出数据
-    float min_value;    //限幅最小值
-    float max_value;    //限幅最大值
-    float frame_period; //时间间隔
-} ramp_function_source_t;
+/**
+ * @brief 返回一块干净的内存,不过仍然需要强制转换为你需要的类型
+ *
+ * @param size 分配大小
+ * @return void*
+ */
+void *zmalloc(size_t size);
 
-typedef struct __attribute__((packed))
-{
-    float input;        //输入数据
-    float out;          //滤波输出的数据
-    float num[1];       //滤波参数
-    float frame_period; //滤波的时间间隔 单位 s
-} first_order_filter_type_t;
-//快速开方
-extern float invSqrt(float num);
+// 快速开方
+float Sqrt(float x);
+// 绝对值限制
+float abs_limit(float num, float Limit);
+// 判断符号位
+float sign(float value);
+// 浮点死区
+float float_deadband(float Value, float minValue, float maxValue);
+// 限幅函数
+float float_constrain(float Value, float minValue, float maxValue);
+// 限幅函数
+int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue);
+// 循环限幅函数
+float loop_float_constrain(float Input, float minValue, float maxValue);
+// 角度格式化为-180~180
+float theta_format(float Ang);
 
-////斜波函数初始化
-//void ramp_init(ramp_function_source_t *ramp_source_type, float frame_period, float max, float min);
-//
-////斜波函数计算
-//void ramp_calc(ramp_function_source_t *ramp_source_type, float input);
-//一阶滤波初始化
-extern void first_order_filter_init(first_order_filter_type_t *first_order_filter_type, float frame_period, const float num[1]);
-//一阶滤波计算
-extern void first_order_filter_cali(first_order_filter_type_t *first_order_filter_type, float input);
-//绝对限制
-extern void abs_limit(float *num, float Limit);
-//判断符号位
-extern float sign(float value);
-//浮点死区
-extern float float_deadline(float Value, float minValue, float maxValue);
-//int26死区
-extern int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue);
-//限幅函数
-extern float float_constrain(float Value, float minValue, float maxValue);
-//限幅函数
-extern int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue);
-//循环限幅函数
-extern float loop_float_constrain(float Input, float minValue, float maxValue);
-//角度 °限幅 180 ~ -180
-extern float theta_format(float Ang);
+int float_rounding(float raw);
 
-//弧度格式化为-PI~PI
+float *Norm3d(float *v);
+
+float NormOf3d(float *v);
+
+void Cross3d(float *v1, float *v2, float *res);
+
+float Dot3d(float *v1, float *v2);
+
+float AverageFilter(float new_data, float *buf, uint8_t len);
+
 #define rad_format(Ang) loop_float_constrain((Ang), -PI, PI)
 
 #endif

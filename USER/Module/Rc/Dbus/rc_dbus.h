@@ -1,19 +1,17 @@
-/*
-* Change Logs:
-* Date            Author          Notes
-* 2023-09-24      ChuShicheng     first version
-*                 ZhengWanshun
-*                 Yangshuo
-*                 ChenSihan
-*/
 #ifndef _RC_DBUS_H
 #define _RC_DBUS_H
 
-#include <rtthread.h>
-#include "rm_config.h"
+#include "cmsis_os.h"
 
-#define DBUS_RX_BUF_NUM        36u
-#define DBUS_FRAME_SIZE        18u     /* DBUS数据帧帧长 */
+#define NOW 0
+#define LAST 1
+
+#define SBUS_HEAD 0X0F
+#define SBUS_END 0X00
+#define SBUS_RX_BUF_SIZE (25+12+4) //41
+
+#define DBUS_RX_BUF_SIZE (25+12+4) //41
+
 
 /**
   * @brief dbus遥控器拨杆值
@@ -79,14 +77,8 @@ typedef struct
     /* 遥控器左侧拨轮数据数值范围:（左）660 ~ -660(右) */
     int16_t wheel;
 }rc_dbus_obj_t;
-
-/**
- * @brief 初始化dbus_rc
- *
- * @return rc_dbus_obj_t* 指向NOW和LAST两次数据的数组起始地址
- */
-rc_dbus_obj_t *dbus_rc_init(void);
-
+void dbus_data_unpack(uint8_t *data, uint16_t len);
+void dbus_data_init();
 /* 解析后的遥控器数据传递给keyboard */
 extern rc_dbus_obj_t rc_dbus_obj[2];
 

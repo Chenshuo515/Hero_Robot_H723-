@@ -12,11 +12,11 @@
  ******************************************************************************
  */
 
- /*
- * Change Logs:
- * Date            Author          Notes
- * 2023-08-23      ChuShicheng     first version
- */
+/*
+* Change Logs:
+* Date            Author          Notes
+* 2023-08-23      ChuShicheng     first version
+*/
 #ifndef _DRV_DWT_H
 #define _DRV_DWT_H
 

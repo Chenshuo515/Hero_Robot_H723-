@@ -8,11 +8,11 @@
  * @brief
  */
 
- /*
- * Change Logs:
- * Date            Author          Notes
- * 2023-08-23      ChuShicheng     first version
- */
+/*
+* Change Logs:
+* Date            Author          Notes
+* 2023-08-23      ChuShicheng     first version
+*/
 #include "drv_dwt.h"
 
 #define DBG_TAG           "bsp.dwt"

@@ -96,32 +96,44 @@ include_directories(Core/Inc Drivers/STM32H7xx_HAL_Driver/Inc Drivers/STM32H7xx_
 
         Middlewares/ST/ARM/DSP/Inc # 矩阵运算库
 
+        USER/Algorithm
+#        USER/Algorithm/arm_math
         USER/Algorithm/MahonyAHRS
         USER/Algorithm/MyType
         USER/Algorithm/PID
-        USER/Algorithm/Dwt
         USER/Algorithm/User_Lib
         USER/Algorithm/Ramp
         USER/Algorithm/Filter
+        USER/Algorithm/kalman_filter
+        USER/Algorithm/QuaternionEKF
         USER/Algorithm/Crc
-       # USER/Algorithm/Fifo
+        # USER/Algorithm/Fifo
 
-       # USER/Module/Bmi088
-       # USER/Module/Vofa+
+        USER/Module
+        USER/Module/Bmi088
+        # USER/Module/Vofa+
         USER/Module/Fdcan
         USER/Module/DM_Motor_Fdcan
+        USER/Module/Dwt
         USER/Module/DJ_Motor
-        USER/Module/Rc/Sbus
+        USER/Module/Rc/Keyboard
+#        USER/Module/Rc/Sbus
+        USER/Module/Rc/Dbus
         USER/Module/Referee
         USER/Module/Keyboard
+        USER/Module/Msg
         USER/Module/Pump
 
-       # USER/Task/Imu
+        USER/Task/Ins
         USER/Task/Chassis
+        USER/Task/Gimbal
+        USER/Task/Shoot
+        USER/Task/Transmission
         USER/Task/Robot_Config
         USER/Task/Cmd
         USER/Task/DMmotor
-       # USER/Task/Arm
+        USER/Task/Motor
+        # USER/Task/Arm
         USER/Task/Referee
         USER/Task/USART_Recive
 
@@ -131,32 +143,42 @@ add_definitions(-DDEBUG -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY)
 
 # 源文件
 file(GLOB_RECURSE SOURCES "Core/*.*" "Middlewares/*.*" "Drivers/*.*" "USB_DEVICE/*.*"
+#        "USER/Algorithm/arm_math/*.*"
         "USER/Algorithm/MahonyAHRS/*.*"
         "USER/Algorithm/MyType/*.*"
         "USER/Algorithm/PID/*.*"
-        "USER/Algorithm/Dwt/*.*"
         "USER/Algorithm/User_Lib/*.*"
         "USER/Algorithm/Ramp/*.*"
         "USER/Algorithm/Filter/*.*"
+        "USER/Algorithm/kalman_filter/*.*"
+        "USER/Algorithm/QuaternionEKF/*.*"
         "USER/Algorithm/Crc/*.*"
-       # "USER/Algorithm/Fifo/*.*"
+        # "USER/Algorithm/Fifo/*.*"
 
-       # "USER/Module/Bmi088/*.*"
-       # "USER/Module/Vofa+/*.*"
+        "USER/Module/Bmi088/*.*"
+        # "USER/Module/Vofa+/*.*"
+        "USER/Module/Dwt/*.*"
         "USER/Module/Fdcan/*.*"
-        "USER/Module/DM_Motor_Fdcan/*.*"
+#        "USER/Module/DM_Motor_Fdcan/*.*"
         "USER/Module/DJ_Motor/*.*"
-        "USER/Module/Rc/Sbus/*.*"
+        "USER/Module/Rc/Keyboard/*.*"
+#        "USER/Module/Rc/Sbus/*.*"
+        "USER/Module/Rc/Dbus/*.*"
         "USER/Module/Referee/*.*"
-        "USER/Module/Keyboard/*.*"
+        #        "USER/Module/Keyboard/*.*"
+        "USER/Module/Msg/*.*"
         "USER/Module/Pump/*.*"
 
-       # "USER/Task/Imu/*.*"
+        "USER/Task/Ins/*.*"
         "USER/Task/Chassis/*.*"
+        "USER/Task/Gimbal/*.*"
+        "USER/Task/Shoot/*.*"
+        "USER/Task/Transmission/*.*"
+        "USER/Task/Motor/*.*"
         "USER/Task/Robot_Config/*.*"
         "USER/Task/Cmd/*.*"
-        "USER/Task/DMmotor/*.*"
-       # "USER/Task/Arm/*.*"
+        #        "USER/Task/DMmotor/*.*"
+        # "USER/Task/Arm/*.*"
         "USER/Task/Referee/*.*"
         "USER/Task/USART_Recive/*.*"
 

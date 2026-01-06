@@ -4,10 +4,11 @@
 
 #include "usart_recive_task.h"
 #include "FreeRTOS.h"
-#include "rc_sbus.h"
+#include "rm_module.h"
 #include "referee_system.h"
 #include "usart.h"
 #include <string.h>
+#include "cmsis_os.h"
 
 // 自定义控制器串口
 static volatile uint8_t usart1_rx_buffer_index;  // 当前使用的接收缓冲区
@@ -75,7 +76,9 @@ void process_uart5_data(void) {
     if (xSemaphoreTake(xSemaphoreUART5, 0) == pdTRUE) {
         finishedBuffer = usart5_rx_buffer_index ^ 1;
         /* SBUS协议解析 */
-        sbus_data_unpack(usart5_rx_buffer[finishedBuffer], usart5_rx_size);
+//        sbus_data_unpack(usart5_rx_buffer[finishedBuffer], usart5_rx_size);
+        dbus_data_unpack(usart5_rx_buffer[finishedBuffer], usart5_rx_size);
+
 
         memset(usart5_rx_buffer[finishedBuffer], 0, SBUS_RX_BUF_SIZE);
     }
