@@ -22,6 +22,8 @@
 #include "dma.h"
 #include "fdcan.h"
 #include "memorymap.h"
+#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
@@ -29,11 +31,10 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "drv_dwt.h"
-#include "rc_sbus.h"
 #include "bsp_fdcan.h"
 #include "dm_motor_drv.h"
 #include "dm_motor_ctrl.h"
-
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,6 +116,8 @@ int main(void)
   MX_UART5_Init();
   MX_USART10_UART_Init();
   MX_UART7_Init();
+  MX_SPI2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
     MX_USB_DEVICE_Init();
 
@@ -144,14 +147,16 @@ int main(void)
     HAL_GPIO_WritePin(PUMP2_2_GPIO_Port, PUMP2_2_Pin, GPIO_PIN_RESET);
 
     dwt_init(480);
-  // 达妙4310驱动设置
-    power(1);
-    bsp_fdcan_set_baud(&hfdcan1, CAN_CLASS, CAN_BR_1M);
-    bsp_fdcan_set_baud(&hfdcan2, CAN_CLASS, CAN_BR_1M);
-    bsp_fdcan_set_baud(&hfdcan3, CAN_CLASS, CAN_BR_1M);
-////	bsp_fdcan_set_baud(&hfdcan1, CAN_FD_BRS, CAN_BR_1M);
     bsp_can_init();
-    dm_motor_init();
+
+
+    // 达妙4310驱动设置
+//    power(1);
+//    bsp_fdcan_set_baud(&hfdcan1, CAN_CLASS, CAN_BR_1M);
+//    bsp_fdcan_set_baud(&hfdcan2, CAN_CLASS, CAN_BR_1M);
+//    bsp_fdcan_set_baud(&hfdcan3, CAN_CLASS, CAN_BR_1M);
+//	  bsp_fdcan_set_baud(&hfdcan1, CAN_FD_BRS, CAN_BR_1M);
+//    dm_motor_init();
 
 
 //    write_motor_data(motor[Motor1].id, 10, mit_mode, 0, 0, 0);
@@ -182,6 +187,12 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+//      vTaskDelay(100);
+//
+//      CDC_Transmit_HS((uint8_t *)"hello\r", 6);
+//      CDC_Transmit_HS((uint8_t *)"借点钱\r", 7);
+
+
   }
   /* USER CODE END 3 */
 }
@@ -219,7 +230,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = 2;
   RCC_OscInitStruct.PLL.PLLN = 40;
   RCC_OscInitStruct.PLL.PLLP = 1;
-  RCC_OscInitStruct.PLL.PLLQ = 6;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   RCC_OscInitStruct.PLL.PLLR = 2;
   RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
   RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;

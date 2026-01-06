@@ -54,6 +54,10 @@ osThreadId DMmotorTaskHandle;
 osThreadId RefereeTaskHandle;
 osThreadId TranmissionTaskHandle;
 osThreadId USARTRecTaskHandle;
+osThreadId GimbalTaskHandle;
+osThreadId ShootTaskHandle;
+osThreadId InsTaskHandle;
+osThreadId MotorTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -67,6 +71,10 @@ void DMmotorTask_Entry(void const * argument);
 void RefereeTask_Entry(void const * argument);
 void TransmissionTask_Entry(void const * argument);
 void USARTRecTask_Entry(void const * argument);
+void GimbalTask_Entry(void const * argument);
+void ShootTask_Entry(void const * argument);
+void InsTask_Entry(void const * argument);
+void MotorTask_entry(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -135,7 +143,7 @@ void MX_FREERTOS_Init(void) {
   AlgorithmTaskHandle = osThreadCreate(osThread(AlgorithmTask), NULL);
 
   /* definition and creation of ChassisTask */
-  osThreadDef(ChassisTask, ChassisTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(ChassisTask, ChassisTask_Entry, osPriorityHigh, 0, 1024);
   ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
 
   /* definition and creation of CmdTask */
@@ -151,12 +159,28 @@ void MX_FREERTOS_Init(void) {
   RefereeTaskHandle = osThreadCreate(osThread(RefereeTask), NULL);
 
   /* definition and creation of TranmissionTask */
-  osThreadDef(TranmissionTask, TransmissionTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(TranmissionTask, TransmissionTask_Entry, osPriorityHigh, 0, 1024);
   TranmissionTaskHandle = osThreadCreate(osThread(TranmissionTask), NULL);
 
   /* definition and creation of USARTRecTask */
   osThreadDef(USARTRecTask, USARTRecTask_Entry, osPriorityHigh, 0, 2048);
   USARTRecTaskHandle = osThreadCreate(osThread(USARTRecTask), NULL);
+
+  /* definition and creation of GimbalTask */
+  osThreadDef(GimbalTask, GimbalTask_Entry, osPriorityHigh, 0, 1024);
+  GimbalTaskHandle = osThreadCreate(osThread(GimbalTask), NULL);
+
+  /* definition and creation of ShootTask */
+  osThreadDef(ShootTask, ShootTask_Entry, osPriorityHigh, 0, 1024);
+  ShootTaskHandle = osThreadCreate(osThread(ShootTask), NULL);
+
+  /* definition and creation of InsTask */
+  osThreadDef(InsTask, InsTask_Entry, osPriorityHigh, 0, 2048);
+  InsTaskHandle = osThreadCreate(osThread(InsTask), NULL);
+
+  /* definition and creation of MotorTask */
+  osThreadDef(MotorTask, MotorTask_entry, osPriorityIdle, 0, 2048);
+  MotorTaskHandle = osThreadCreate(osThread(MotorTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -290,6 +314,78 @@ __weak void USARTRecTask_Entry(void const * argument)
     osDelay(1);
   }
   /* USER CODE END USARTRecTask_Entry */
+}
+
+/* USER CODE BEGIN Header_GimbalTask_Entry */
+/**
+* @brief Function implementing the GimbalTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_GimbalTask_Entry */
+__weak void GimbalTask_Entry(void const * argument)
+{
+  /* USER CODE BEGIN GimbalTask_Entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END GimbalTask_Entry */
+}
+
+/* USER CODE BEGIN Header_ShootTask_Entry */
+/**
+* @brief Function implementing the ShootTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_ShootTask_Entry */
+__weak void ShootTask_Entry(void const * argument)
+{
+  /* USER CODE BEGIN ShootTask_Entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END ShootTask_Entry */
+}
+
+/* USER CODE BEGIN Header_InsTask_Entry */
+/**
+* @brief Function implementing the InsTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_InsTask_Entry */
+__weak void InsTask_Entry(void const * argument)
+{
+  /* USER CODE BEGIN InsTask_Entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END InsTask_Entry */
+}
+
+/* USER CODE BEGIN Header_MotorTask_entry */
+/**
+* @brief Function implementing the MotorTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_MotorTask_entry */
+__weak void MotorTask_entry(void const * argument)
+{
+  /* USER CODE BEGIN MotorTask_entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END MotorTask_entry */
 }
 
 /* Private application code --------------------------------------------------*/
