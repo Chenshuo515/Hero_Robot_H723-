@@ -58,6 +58,7 @@ osThreadId GimbalTaskHandle;
 osThreadId ShootTaskHandle;
 osThreadId InsTaskHandle;
 osThreadId MotorTaskHandle;
+osThreadId SupercapTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -74,7 +75,8 @@ void USARTRecTask_Entry(void const * argument);
 void GimbalTask_Entry(void const * argument);
 void ShootTask_Entry(void const * argument);
 void InsTask_Entry(void const * argument);
-void MotorTask_entry(void const * argument);
+void MotorTask_Entry(void const * argument);
+void Supercap_Entry(void const * argument);
 
 extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
@@ -179,8 +181,12 @@ void MX_FREERTOS_Init(void) {
   InsTaskHandle = osThreadCreate(osThread(InsTask), NULL);
 
   /* definition and creation of MotorTask */
-  osThreadDef(MotorTask, MotorTask_entry, osPriorityIdle, 0, 2048);
+  osThreadDef(MotorTask, MotorTask_Entry, osPriorityIdle, 0, 2048);
   MotorTaskHandle = osThreadCreate(osThread(MotorTask), NULL);
+
+  /* definition and creation of SupercapTask */
+  osThreadDef(SupercapTask, Supercap_Entry, osPriorityIdle, 0, 768);
+  SupercapTaskHandle = osThreadCreate(osThread(SupercapTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -370,22 +376,40 @@ __weak void InsTask_Entry(void const * argument)
   /* USER CODE END InsTask_Entry */
 }
 
-/* USER CODE BEGIN Header_MotorTask_entry */
+/* USER CODE BEGIN Header_MotorTask_Entry */
 /**
 * @brief Function implementing the MotorTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_MotorTask_entry */
-__weak void MotorTask_entry(void const * argument)
+/* USER CODE END Header_MotorTask_Entry */
+__weak void MotorTask_Entry(void const * argument)
 {
-  /* USER CODE BEGIN MotorTask_entry */
+  /* USER CODE BEGIN MotorTask_Entry */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END MotorTask_entry */
+  /* USER CODE END MotorTask_Entry */
+}
+
+/* USER CODE BEGIN Header_Supercap_Entry */
+/**
+* @brief Function implementing the SupercapTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Supercap_Entry */
+__weak void Supercap_Entry(void const * argument)
+{
+  /* USER CODE BEGIN Supercap_Entry */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END Supercap_Entry */
 }
 
 /* Private application code --------------------------------------------------*/

@@ -37,7 +37,7 @@ static struct gimbal_controller_t{
 motor_config_t gimbal_motor_config[GIM_MOTOR_NUM] = {
         {
                 .motor_type = GM6020,
-                .can_name = CAN_CHASSIS,
+                .can_name = CAN_GIMBAL,
                 .rx_id = YAW_MOTOR_ID,
                 .controller = &gim_controller[YAW],
         },

@@ -56,10 +56,10 @@ RM = "D:\yycx\CLion 2024.1.1\bin\cmake\win\x64\bin\cmake.exe" -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Hero_Robot_H723
+CMAKE_SOURCE_DIR = D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Hero_Robot_H723\cmake-build-debug
+CMAKE_BINARY_DIR = D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -86,9 +86,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Hero_Robot_H723\cmake-build-debug\CMakeFiles D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Hero_Robot_H723\cmake-build-debug\\CMakeFiles\progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\cmake-build-debug\CMakeFiles D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\cmake-build-debug\\CMakeFiles\progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Hero_Robot_H723\cmake-build-debug\CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\cmake-build-debug\CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -2128,6 +2128,30 @@ USER/Task/Shoot/shoot_task.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\CtrBoard-H7_ALL.elf.dir\build.make CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Shoot/shoot_task.c.s
 .PHONY : USER/Task/Shoot/shoot_task.c.s
 
+USER/Task/Supercap/supercap_task.obj: USER/Task/Supercap/supercap_task.c.obj
+.PHONY : USER/Task/Supercap/supercap_task.obj
+
+# target to build an object file
+USER/Task/Supercap/supercap_task.c.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CtrBoard-H7_ALL.elf.dir\build.make CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Supercap/supercap_task.c.obj
+.PHONY : USER/Task/Supercap/supercap_task.c.obj
+
+USER/Task/Supercap/supercap_task.i: USER/Task/Supercap/supercap_task.c.i
+.PHONY : USER/Task/Supercap/supercap_task.i
+
+# target to preprocess a source file
+USER/Task/Supercap/supercap_task.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CtrBoard-H7_ALL.elf.dir\build.make CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Supercap/supercap_task.c.i
+.PHONY : USER/Task/Supercap/supercap_task.c.i
+
+USER/Task/Supercap/supercap_task.s: USER/Task/Supercap/supercap_task.c.s
+.PHONY : USER/Task/Supercap/supercap_task.s
+
+# target to generate assembly for a file
+USER/Task/Supercap/supercap_task.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\CtrBoard-H7_ALL.elf.dir\build.make CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Supercap/supercap_task.c.s
+.PHONY : USER/Task/Supercap/supercap_task.c.s
+
 USER/Task/Transmission/transmission_task.obj: USER/Task/Transmission/transmission_task.c.obj
 .PHONY : USER/Task/Transmission/transmission_task.obj
 
@@ -2435,6 +2459,9 @@ help:
 	@echo ... USER/Task/Shoot/shoot_task.obj
 	@echo ... USER/Task/Shoot/shoot_task.i
 	@echo ... USER/Task/Shoot/shoot_task.s
+	@echo ... USER/Task/Supercap/supercap_task.obj
+	@echo ... USER/Task/Supercap/supercap_task.i
+	@echo ... USER/Task/Supercap/supercap_task.s
 	@echo ... USER/Task/Transmission/transmission_task.obj
 	@echo ... USER/Task/Transmission/transmission_task.i
 	@echo ... USER/Task/Transmission/transmission_task.s

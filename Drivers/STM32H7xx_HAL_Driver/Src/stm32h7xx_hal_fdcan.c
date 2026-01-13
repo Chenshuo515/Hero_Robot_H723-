@@ -2723,73 +2723,75 @@ HAL_StatusTypeDef HAL_FDCAN_Stop(FDCAN_HandleTypeDef *hfdcan)
   * @param  pTxData pointer to a buffer containing the payload of the Tx frame.
   * @retval HAL status
   */
+static int flag0,flag1,flag2,flag3 = 0;
+
 HAL_StatusTypeDef HAL_FDCAN_AddMessageToTxFifoQ(FDCAN_HandleTypeDef *hfdcan, const FDCAN_TxHeaderTypeDef *pTxHeader,
                                                 const uint8_t *pTxData)
 {
-  uint32_t PutIndex;
+    uint32_t PutIndex;
 
-  /* Check function parameters */
-  assert_param(IS_FDCAN_ID_TYPE(pTxHeader->IdType));
-  if (pTxHeader->IdType == FDCAN_STANDARD_ID)
-  {
-    assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->Identifier, 0x7FFU));
-  }
-  else /* pTxHeader->IdType == FDCAN_EXTENDED_ID */
-  {
-    assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->Identifier, 0x1FFFFFFFU));
-  }
-  assert_param(IS_FDCAN_FRAME_TYPE(pTxHeader->TxFrameType));
-  assert_param(IS_FDCAN_DLC(pTxHeader->DataLength));
-  assert_param(IS_FDCAN_ESI(pTxHeader->ErrorStateIndicator));
-  assert_param(IS_FDCAN_BRS(pTxHeader->BitRateSwitch));
-  assert_param(IS_FDCAN_FDF(pTxHeader->FDFormat));
-  assert_param(IS_FDCAN_EFC(pTxHeader->TxEventFifoControl));
-  assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->MessageMarker, 0xFFU));
-
-  if (hfdcan->State == HAL_FDCAN_STATE_BUSY)
-  {
-    /* Check that the Tx FIFO/Queue has an allocated area into the RAM */
-    if ((hfdcan->Instance->TXBC & FDCAN_TXBC_TFQS) == 0U)
+    /* Check function parameters */
+    assert_param(IS_FDCAN_ID_TYPE(pTxHeader->IdType));
+    if (pTxHeader->IdType == FDCAN_STANDARD_ID)
     {
-      /* Update error code */
-      hfdcan->ErrorCode |= HAL_FDCAN_ERROR_PARAM;
-
-      return HAL_ERROR;
+        assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->Identifier, 0x7FFU));
     }
-
-    /* Check that the Tx FIFO/Queue is not full */
-    if ((hfdcan->Instance->TXFQS & FDCAN_TXFQS_TFQF) != 0U)
+    else /* pTxHeader->IdType == FDCAN_EXTENDED_ID */
     {
-      /* Update error code */
-      hfdcan->ErrorCode |= HAL_FDCAN_ERROR_FIFO_FULL;
+        assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->Identifier, 0x1FFFFFFFU));
+    }
+    assert_param(IS_FDCAN_FRAME_TYPE(pTxHeader->TxFrameType));
+    assert_param(IS_FDCAN_DLC(pTxHeader->DataLength));
+    assert_param(IS_FDCAN_ESI(pTxHeader->ErrorStateIndicator));
+    assert_param(IS_FDCAN_BRS(pTxHeader->BitRateSwitch));
+    assert_param(IS_FDCAN_FDF(pTxHeader->FDFormat));
+    assert_param(IS_FDCAN_EFC(pTxHeader->TxEventFifoControl));
+    assert_param(IS_FDCAN_MAX_VALUE(pTxHeader->MessageMarker, 0xFFU));
 
-      return HAL_ERROR;
+    if (hfdcan->State == HAL_FDCAN_STATE_BUSY)
+    {
+        /* Check that the Tx FIFO/Queue has an allocated area into the RAM */
+        if ((hfdcan->Instance->TXBC & FDCAN_TXBC_TFQS) == 0U)
+        {
+            /* Update error code */
+            hfdcan->ErrorCode |= HAL_FDCAN_ERROR_PARAM;
+            flag0++;
+            return HAL_ERROR;
+        }
+
+        /* Check that the Tx FIFO/Queue is not full */
+        if ((hfdcan->Instance->TXFQS & FDCAN_TXFQS_TFQF) != 0U)
+        {
+            /* Update error code */
+            hfdcan->ErrorCode |= HAL_FDCAN_ERROR_FIFO_FULL;
+            flag1++;
+            return HAL_ERROR;
+        }
+        else
+        {flag2++;
+            /* Retrieve the Tx FIFO PutIndex */
+            PutIndex = ((hfdcan->Instance->TXFQS & FDCAN_TXFQS_TFQPI) >> FDCAN_TXFQS_TFQPI_Pos);
+
+            /* Add the message to the Tx FIFO/Queue */
+            FDCAN_CopyMessageToRAM(hfdcan, pTxHeader, pTxData, PutIndex);
+
+            /* Activate the corresponding transmission request */
+            hfdcan->Instance->TXBAR = ((uint32_t)1 << PutIndex);
+
+            /* Store the Latest Tx FIFO/Queue Request Buffer Index */
+            hfdcan->LatestTxFifoQRequest = ((uint32_t)1 << PutIndex);
+        }
+
+        /* Return function status */
+        return HAL_OK;
     }
     else
-    {
-      /* Retrieve the Tx FIFO PutIndex */
-      PutIndex = ((hfdcan->Instance->TXFQS & FDCAN_TXFQS_TFQPI) >> FDCAN_TXFQS_TFQPI_Pos);
+    {flag3++;
+        /* Update error code */
+        hfdcan->ErrorCode |= HAL_FDCAN_ERROR_NOT_STARTED;
 
-      /* Add the message to the Tx FIFO/Queue */
-      FDCAN_CopyMessageToRAM(hfdcan, pTxHeader, pTxData, PutIndex);
-
-      /* Activate the corresponding transmission request */
-      hfdcan->Instance->TXBAR = ((uint32_t)1 << PutIndex);
-
-      /* Store the Latest Tx FIFO/Queue Request Buffer Index */
-      hfdcan->LatestTxFifoQRequest = ((uint32_t)1 << PutIndex);
+        return HAL_ERROR;
     }
-
-    /* Return function status */
-    return HAL_OK;
-  }
-  else
-  {
-    /* Update error code */
-    hfdcan->ErrorCode |= HAL_FDCAN_ERROR_NOT_STARTED;
-
-    return HAL_ERROR;
-  }
 }
 
 /**

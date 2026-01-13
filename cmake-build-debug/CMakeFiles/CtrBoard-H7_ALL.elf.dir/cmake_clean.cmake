@@ -166,6 +166,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Referee/referee_task.c.obj.d"
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Shoot/shoot_task.c.obj"
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Shoot/shoot_task.c.obj.d"
+  "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Supercap/supercap_task.c.obj"
+  "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Supercap/supercap_task.c.obj.d"
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Transmission/transmission_task.c.obj"
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Transmission/transmission_task.c.obj.d"
   "CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/USART_Recive/usart_recive_task.c.obj"

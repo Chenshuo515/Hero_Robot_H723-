@@ -18,8 +18,8 @@
 
 extern struct referee_fdb_msg referee_fdb;
 
-static publisher_t *pub_gim, *pub_chassis, *pub_shoot,*pub_ui;
-static subscriber_t *sub_gim, *sub_shoot,*sub_trans,*sub_ins,*sub_referee,*sub_chassis;
+static publisher_t *pub_gim, *pub_chassis, *pub_shoot,*pub_ui,*pub_cap;
+static subscriber_t *sub_gim, *sub_shoot,*sub_trans,*sub_ins,*sub_referee,*sub_chassis,*sub_cap;
 static struct gimbal_cmd_msg gim_cmd;
 static struct gimbal_fdb_msg gim_fdb;
 static struct shoot_cmd_msg  shoot_cmd;
@@ -29,6 +29,9 @@ static struct ins_msg ins_data;
 
 static struct chassis_cmd_msg chassis_cmd;
 static struct chassis_fdb_msg chassis_fdb;
+
+static struct supercap_cmd_msg cap_cmd;
+static struct supercap_fdb_msg cap_fdb;
 
 static void cmd_pub_init(void);
 static void cmd_pub_push(void);
@@ -51,6 +54,12 @@ static float mouse_accumulate_y=0;
 /*自瞄继承角度*/
 static float gyro_yaw_inherit;
 static float gyro_pitch_inherit;
+/* ---------------------------------------------------- 超级电容相关 --------------------------------------------------- */
+
+/*超电使用状态*/
+static int supercap_enable_state=0;//默认失能
+static int supercap_charge_state=1;//默认充电
+
 /* --------------------------------------------------- 发射机构相关 ---------------------------------------------------- */
 /*发射停止标志位*/
 static int trigger_flag=0;
@@ -137,8 +146,12 @@ void CmdTask_Entry(void const * argument)
         gim_start = dwt_get_time_ms();
         cmd_sub_pull();
 
-//        remote_to_cmd_sbus();
-        remote_to_cmd_pc_DT7();
+    #ifdef BSP_USING_RC_DBUS
+            remote_to_cmd_pc_DT7();
+    #else
+            remote_to_cmd_sbus();
+    #endif
+
         /* 更新发布该线程的msg */
         cmd_pub_push();
         /* 用于调试监测线程调度使用 */
@@ -156,6 +169,8 @@ static void cmd_pub_init(void)
     pub_chassis = pub_register("chassis_cmd", sizeof(struct chassis_cmd_msg));
     pub_shoot= pub_register("shoot_cmd", sizeof(struct shoot_cmd_msg));
 //    pub_ui= pub_register("ui_cmd", sizeof(struct ui_cmd_msg));
+    pub_cap = pub_register("cap_cmd", sizeof(struct supercap_cmd_msg));
+
 }
 
 /**
@@ -167,6 +182,8 @@ static void cmd_pub_push(void)
     pub_push_msg(pub_chassis, &chassis_cmd);
     pub_push_msg(pub_shoot, &shoot_cmd);
 //    pub_push_msg(pub_ui, &ui_cmd);
+    pub_push_msg(pub_cap, &cap_cmd);
+
 }
 
 /**
@@ -180,6 +197,8 @@ static void cmd_sub_init(void)
     sub_ins = sub_register("ins_msg", sizeof(struct ins_msg));
 //    sub_referee= sub_register("referee_fdb",sizeof(struct referee_msg));
     sub_chassis = sub_register("chassis_fdb", sizeof(struct chassis_fdb_msg));
+    sub_cap = sub_register("cap_fdb", sizeof(struct supercap_fdb_msg));
+
 }
 
 
@@ -194,6 +213,8 @@ static void cmd_sub_pull(void)
     sub_get_msg(sub_ins, &ins_data);
     sub_get_msg(sub_referee, &referee_fdb);
     sub_get_msg(sub_chassis, &chassis_fdb);
+    sub_get_msg(sub_cap, &cap_fdb);
+
 }
 
 
@@ -372,7 +393,6 @@ static void remote_to_cmd_pc_DT7(void)
     }
 
     /*TODO:--------------------------------------------------发射模块状态机--------------------------------------------------------------*/
-    /*!-----------------------------------------开关摩擦轮--------------------------------------------*/
     /*-----------------------------------------开关摩擦轮--------------------------------------------*/
     if(km.f_sta==KEY_PRESS_ONCE)
     {
@@ -536,9 +556,51 @@ static void remote_to_cmd_pc_DT7(void)
     {
         memset(r_buffer_point,0,sizeof (*r_buffer_point));
     }
+    /*-----------------------------------------------------------超级电容控制--------------------------------------------------------------*/
+/* 使能控制 */
+#ifdef BSP_USING_SUPERCAP
+    if (chassis_cmd.vw == chassis_cmd.vx == chassis_cmd.vy == 0)     //即底盘不运动
+    {
+        cap_cmd.enable_cmd = SUPERCAP_STATE_ENABLE;
+        cap_cmd.charge_cmd = SUPERCAP_STATE_ENABLE;
+        cap_cmd.charge_power = referee_fdb.robot_status.chassis_power_limit;
+    }
+    if (chassis_cmd.vw != 0 && chassis_cmd.vx != 0 && chassis_cmd.vy != 0)
+    {
+        if (supercap_enable_state == SUPERCAP_STATE_DISENABLE) //不使用超电
+        {
+            cap_cmd.enable_cmd = SUPERCAP_STATE_DISENABLE;
+            cap_cmd.charge_cmd = SUPERCAP_STATE_CHARGING;
+            cap_cmd.charge_power = referee_fdb.robot_status.chassis_power_limit - 30;
+        }
+        else//使用超电
+        {
+            if (supercap_charge_state == SUPERCAP_STATE_ENABLE) //充电,此处要添加使其为充电的判断赋值，即在什么情况下让supercap_charge_state=1
+            {
+                cap_cmd.enable_cmd = SUPERCAP_STATE_ENABLE;
+                cap_cmd.charge_cmd = SUPERCAP_STATE_CHARGING;
+                cap_cmd.charge_power = referee_fdb.robot_status.chassis_power_limit - 30;
+            }
+            else    //放电
+            {
+                if (supercap_enable_state == SUPERCAP_READY_YES)//可用
+                {
+                    cap_cmd.enable_cmd = SUPERCAP_STATE_ENABLE;
+                    cap_cmd.charge_cmd = SUPERCAP_STATE_DISCHARGING;
+                }
+                else//不可用
+                {
+                    cap_cmd.enable_cmd = SUPERCAP_STATE_DISENABLE;
+                    cap_cmd.charge_cmd = SUPERCAP_STATE_CHARGING;
+                    cap_cmd.charge_power = referee_fdb.robot_status.chassis_power_limit - 30;
+                }
+            }
+        }
+    }
+#endif
     /*----------------------------------------------------------------使能判断---------------------------------------------------------------*/
 
-    //关闭云台接口，便于调试
+    //关闭底盘接口，便于调试
     if(rc_now->wheel >= 600 && rc_now->sw2==RC_MI)
     {
         cnt_flag++;

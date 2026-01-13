@@ -19,6 +19,9 @@
 //#define BSP_BMI088_CALI
 #define BSP_USING_RC_DBUS
 //#define BSP_USING_RC_KEYBOARD
+#define BSP_USING_SUPERCAP
+
+
 /* end of RoboMaster Modules */
 
 /* ----------------------RoboMaster Algorithms------------------- */
@@ -39,6 +42,10 @@
 #define BSP_USING_TRANSMISSION_TASK
 #define BSP_USING_SHOOT_TASK
 #define BSP_USING_REFEREE_TASK
+#ifdef BSP_USING_SUPERCAP
+    #define BSP_USING_SUPERCAP_TASK
+#endif
+
 /*底盘类型选择*/
 //#define BSP_CHASSIS_OMNI_MODE
 #define BSP_CHASSIS_MECANUM_MODE
@@ -255,17 +262,16 @@ extern FDCAN_HandleTypeDef hfdcan3;
 #define PITCH_MAX_A_AUTO         10
 
 /* ------------------------------------------------------- 发射相关 --------------------------------------------------- */
-// TODO: 实际值待整定
 #define RIGHT_FRICTION_MOTOR_ID     0x201
 #define LEFT_FRICTION_MOTOR_ID   0x202
 #define MIDDLE_FRICTION_MOTOR_ID   0x203
-#define TRIGGER_MOTOR_ID  0x204 //0x205
+#define TRIGGER_MOTOR_ID  0x205 //0x205
 
 #define FRICTION_SPEED_ONE  6000
 #define FRICTION_SPEED_CONTINUE  6000
 
 
-#define TRIGGER_MOTOR_51_TO_ANGLE 51.47f
+#define TRIGGER_MOTOR_120_TO_ANGLE 120.0f
 /* -------------------------------- 发射电机PID参数 ------------------------------- */
 // TODO: 速度期望应改为变量应对速度切换。初次参数调整已完成
 /* 右摩擦轮M3508电机PID参数 */

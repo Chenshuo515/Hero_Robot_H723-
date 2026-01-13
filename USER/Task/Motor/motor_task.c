@@ -8,7 +8,7 @@
 static float motor_dt;
 uint32_t tec,rec;
 /* USER CODE END Header_TransmissionTask_Entry */
-void MotorTask_entry(void const * argument)
+void MotorTask_Entry(void const * argument)
 {
     /* USER CODE BEGIN TransmissionTask_Entry */
     /* Infinite loop */

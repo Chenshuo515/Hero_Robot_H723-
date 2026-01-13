@@ -55,7 +55,9 @@
 #include "referee_task.h"
 #include "Referee_system.h"
 #endif /* BSP_USING_REFEREE_TASK */
-
+#ifdef BSP_USING_SUPERCAP_TASK
+#include "supercap_task.h"
+#endif /* BSP_USING_SUPERCAP_TASK */
 
 /* --------------------------------- 话题的数据格式 -------------------------------- */
 struct ins_msg

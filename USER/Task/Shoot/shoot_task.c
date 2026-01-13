@@ -61,7 +61,7 @@ motor_config_t shoot_motor_config[SHT_MOTOR_NUM] ={
         },
         {
                 .motor_type = M3508,
-                .can_name = CAN_GIMBAL,
+                .can_name = CAN_CHASSIS,
                 .rx_id = TRIGGER_MOTOR_ID,
                 .controller = &sht_controller[TRIGGER_MOTOR],
         }
@@ -126,14 +126,14 @@ void ShootTask_Entry(void const * argument)
         /*开关摩擦轮*/
         if (shoot_cmd.friction_status==SHOOT_ONE)
         {
-            shoot_motor_ref[RIGHT_FRICTION] = FRICTION_SPEED_ONE;//摩擦轮常转 实测最大转速为8800
-            shoot_motor_ref[MIDDLE_FRICTION] = FRICTION_SPEED_ONE;
-            shoot_motor_ref[LEFT_FRICTION] = -FRICTION_SPEED_ONE;
+            shoot_motor_ref[RIGHT_FRICTION] = -FRICTION_SPEED_ONE;//摩擦轮常转 实测最大转速为8800
+            shoot_motor_ref[MIDDLE_FRICTION] = -FRICTION_SPEED_ONE;
+            shoot_motor_ref[LEFT_FRICTION] = FRICTION_SPEED_ONE;
             if(shoot_cmd.ctrl_mode == SHOOT_COUNTINUE)
             {
-                shoot_motor_ref[RIGHT_FRICTION] = FRICTION_SPEED_CONTINUE;//摩擦轮常转 实测最大转速为8800
-                shoot_motor_ref[MIDDLE_FRICTION] = FRICTION_SPEED_CONTINUE;
-                shoot_motor_ref[LEFT_FRICTION] = -FRICTION_SPEED_CONTINUE;
+                shoot_motor_ref[RIGHT_FRICTION] = -FRICTION_SPEED_CONTINUE;//摩擦轮常转 实测最大转速为8800
+                shoot_motor_ref[MIDDLE_FRICTION] = -FRICTION_SPEED_CONTINUE;
+                shoot_motor_ref[LEFT_FRICTION] = FRICTION_SPEED_CONTINUE;
             }
             /*从自动连发模式切换三连发及单发模式时，要继承总转子角度*/
         }
@@ -175,7 +175,7 @@ void ShootTask_Entry(void const * argument)
                     {
                         flag = 2;
                         //M3508的减速比为 19:1，因此转轴旋转51.43度，要在转子的基础上乘19倍
-                        if(shoot_motor_ref[TRIGGER_MOTOR] - sht_controller[TRIGGER_MOTOR].pid_angle->Measure > TRIGGER_MOTOR_51_TO_ANGLE * 19 * 0.3)
+                        if(shoot_motor_ref[TRIGGER_MOTOR] - sht_controller[TRIGGER_MOTOR].pid_angle->Measure > TRIGGER_MOTOR_120_TO_ANGLE * 19 * 0.3)
                         {
                             flag = 3;
                             shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时堵转了
@@ -183,7 +183,7 @@ void ShootTask_Entry(void const * argument)
                         else if(reverse_ref !=0 && shoot_cmd.last_mode == SHOOT_REVERSE)
                         {
                             flag = 4;
-                            if(sht_controller[TRIGGER_MOTOR].pid_angle->Measure - reverse_ref > TRIGGER_MOTOR_51_TO_ANGLE * 19 * 0.4)
+                            if(sht_controller[TRIGGER_MOTOR].pid_angle->Measure - reverse_ref > TRIGGER_MOTOR_120_TO_ANGLE * 19 * 0.4)
                             {
                                 flag = 5;
                                 shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时反转尚未完成
@@ -192,7 +192,7 @@ void ShootTask_Entry(void const * argument)
                         else
                         {
                             flag = 6;
-                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_51_TO_ANGLE * 19;
+                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_120_TO_ANGLE * 19;
 
                             // shooter_barrel_heat_remain = msg->robot_status.shooter_barrel_heat_limit - msg->power_heat_data.shooter_42mm_barrel_heat;
                             // if(shooter_barrel_heat_remain >= 120
@@ -222,7 +222,7 @@ void ShootTask_Entry(void const * argument)
                 if (shoot_cmd.trigger_status == TRIGGER_ON)
                 {
 
-                    shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_51_TO_ANGLE * 19;//M3508的减速比为 19:1，因此转轴旋转51.43度，要在转子的基础上乘19倍
+                    shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_120_TO_ANGLE * 19;//M3508的减速比为 19:1，因此转轴旋转120度，要在转子的基础上乘19倍
                     shoot_cmd.trigger_status=TRIGGER_OFF;//扳机归零
                     shoot_fdb.trigger_status=SHOOT_OK;
                 }
@@ -236,13 +236,13 @@ void ShootTask_Entry(void const * argument)
                 break;
 
             case SHOOT_REVERSE:
-                if(shoot_motor_ref[TRIGGER_MOTOR] - reverse_ref < TRIGGER_MOTOR_51_TO_ANGLE * 19 * 1.8)
+                if(shoot_motor_ref[TRIGGER_MOTOR] - reverse_ref < TRIGGER_MOTOR_120_TO_ANGLE * 19 * 1.8)
                 {
                     shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //没有余量进行反转
                 }
                 else
                 {
-                    shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] - TRIGGER_MOTOR_51_TO_ANGLE * 19 * 2;
+                    shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] - TRIGGER_MOTOR_120_TO_ANGLE * 19 * 2;
                     reverse_ref = shoot_motor_ref[TRIGGER_MOTOR];
                 }
 

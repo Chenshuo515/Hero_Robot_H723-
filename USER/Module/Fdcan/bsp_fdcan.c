@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "bsp_fdcan.h"
 #include "rm_module.h"
+#include "supercap_task.h"
 
 extern FDCAN_HandleTypeDef hfdcan1;
 extern FDCAN_HandleTypeDef hfdcan2;
@@ -21,7 +22,8 @@ void bsp_can_init(void)
 {
 
 // 简化中断配置
-    uint32_t FDCAN_RXActiveITs = FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO0_WATERMARK;
+    uint32_t FDCAN_RXActiveITs = FDCAN_IT_RX_FIFO0_NEW_MESSAGE | FDCAN_IT_RX_FIFO0_WATERMARK
+                                 |FDCAN_IT_RX_FIFO1_NEW_MESSAGE | FDCAN_IT_RX_FIFO1_WATERMARK;
 
     can_filter_init();
     HAL_FDCAN_Start(&hfdcan1);                               //开启FDCAN
@@ -53,8 +55,8 @@ void can_filter_init(void)
     fdcan_filter1.FilterIndex = 0;                                  //滤波器索引
     fdcan_filter1.FilterType = FDCAN_FILTER_MASK;                   //掩码模式
     fdcan_filter1.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           //过滤器1关联到FIFO0
-    fdcan_filter1.FilterID1 = 0x200;                // 基础ID（0x201~0x210的高位基准）
-    fdcan_filter1.FilterID2 = 0xFF0;                // 掩码（屏蔽后4位，保留前7位）
+    fdcan_filter1.FilterID1 = 0x000;                                // 匹配ID设为0
+    fdcan_filter1.FilterID2 = 0x000;                                // 掩码设为0（所有位都不屏蔽）
 
     FDCAN_FilterTypeDef fdcan_filter2;
 
@@ -72,8 +74,8 @@ void can_filter_init(void)
     fdcan_filter3.FilterIndex = 2;                                  //滤波器索引
     fdcan_filter3.FilterType = FDCAN_FILTER_MASK;                   //掩码模式
     fdcan_filter3.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           //过滤器3关联到FIFO00
-    fdcan_filter3.FilterID1 = 0x200;                // 基础ID（0x201~0x210的高位基准）
-    fdcan_filter3.FilterID2 = 0xFF0;                // 掩码（屏蔽后4位，保留前7位）
+    fdcan_filter3.FilterID1 = 0x000;                                // 匹配ID设为0
+    fdcan_filter3.FilterID2 = 0x000;                                // 掩码设为0（所有位都不屏蔽）
 
     HAL_FDCAN_ConfigFilter(&hfdcan1,&fdcan_filter1); 		 				  //接收ID2
     //拒绝接收匹配不成功的标准ID和扩展ID,不接受远程帧
@@ -142,32 +144,12 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
     pTxHeader.TxEventFifoControl=FDCAN_NO_TX_EVENTS;
     pTxHeader.MessageMarker=0;
 
-    test = HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data);
+    //test = HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data);
 
     if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data)!=HAL_OK)
         return 1;//发送
     return 0;
-//    static uint32_t busy_count;
-//    static volatile float wait_time __attribute__((unused)); // for cancel warning
-//    float dwt_start = dwt_get_time_ms();
-//    while(HAL_FDCAN_GetTxFifoFreeLevel(hfdcan) == 0)
-//    {
-//        if (dwt_get_time_ms() - dwt_start > 1) // 超时
-//        {
-//            printf("[bsp_can] CAN MAILbox full! failed to add msg to mailbox. Cnt [%d]", busy_count);
-//            busy_count++;
-//            return 0;
-//        }
-//    }
-//    wait_time = dwt_get_time_ms() - dwt_start;
-//
-//    if (HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data))
-//    {
-//        printf("[bsp_can] CAN bus BUSY! cnt:%d", busy_count);
-//        busy_count++;
-//        return 0;
-//    }
-//    return 1; // 发送成功
+
 }
 
 /**
@@ -179,7 +161,7 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
 * @details:    	接收数据
 ************************************************************************
 **/
-uint8_t fdcanx_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
+uint8_t fdcanx_receive_fifo0(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 {
     FDCAN_RxHeaderTypeDef pRxHeader;
     uint8_t len;
@@ -209,7 +191,44 @@ uint8_t fdcanx_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
     return 0;
 }
 
+/**
+************************************************************************
+* @brief:      	fdcanx_receive(FDCAN_HandleTypeDef *hfdcan, uint8_t *buf)
+* @param:       hfdcan：FDCAN句柄
+* @param:       buf：接收数据缓存
+* @retval:     	接收的数据长度
+* @details:    	接收数据
+************************************************************************
+**/
+uint8_t fdcanx_receive_fifo1(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
+{
+    FDCAN_RxHeaderTypeDef pRxHeader;
+    uint8_t len;
 
+    if(HAL_FDCAN_GetRxMessage(hfdcan,FDCAN_RX_FIFO1, &pRxHeader, buf)==HAL_OK)
+    {
+        *rec_id = pRxHeader.Identifier;
+        if(pRxHeader.DataLength<=FDCAN_DLC_BYTES_8)
+            len = pRxHeader.DataLength;
+        else if(pRxHeader.DataLength<=FDCAN_DLC_BYTES_12)
+            len = 12;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_16)
+            len = 16;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_20)
+            len = 20;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_24)
+            len = 24;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_32)
+            len = 32;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_48)
+            len = 48;
+        else if(pRxHeader.DataLength==FDCAN_DLC_BYTES_64)
+            len = 64;
+
+        return len;//接收数据
+    }
+    return 0;
+}
 
 //__weak void fdcan1_rx_callback(void)
 //{
@@ -227,27 +246,35 @@ uint8_t rx_data1[8] = {0};
 uint16_t rec_id1;
 void fdcan1_rx_callback(void)
 {
-    fdcanx_receive(&hfdcan1, &rec_id1, rx_data1);
+    fdcanx_receive_fifo0(&hfdcan1, &rec_id1, rx_data1);
     dji_motot_rx_callback(1,rec_id1, rx_data1);
+    #ifdef BSP_USING_SUPERCAP_TASK
+    supercap_can_rx_callback(rec_id1, rx_data1);
+    #endif /* BSP_USING_SUPERCAP_TASK */
 }
 uint8_t rx_data2[8] = {0};
 uint16_t rec_id2;
 void fdcan2_rx_callback(void)
 {
-    fdcanx_receive(&hfdcan2, &rec_id2, rx_data2);
+    fdcanx_receive_fifo0(&hfdcan2, &rec_id2, rx_data2);
     dji_motot_rx_callback(2,rec_id2, rx_data2);
+    #ifdef BSP_USING_SUPERCAP_TASK
+    supercap_can_rx_callback(rec_id2, rx_data2);
+    #endif /* BSP_USING_SUPERCAP_TASK */
 }
 uint8_t rx_data3[8] = {0};
 uint16_t rec_id3;
 void fdcan3_rx_callback(void)
 {
-    fdcanx_receive(&hfdcan3, &rec_id3, rx_data3);
+    fdcanx_receive_fifo0(&hfdcan3, &rec_id3, rx_data3);
     dji_motot_rx_callback(3,rec_id3, rx_data3);
+    #ifdef BSP_USING_SUPERCAP_TASK
+    supercap_can_rx_callback(rec_id3, rx_data3);
+    #endif /* BSP_USING_SUPERCAP_TASK */
 }
 
 
-static int flag0,flag1,flag2,flag3,flag4 = 0;
-
+static int flag0 = 0, flag1 = 0, flag2 = 0, flag3 = 0, flag4 = 0;
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     flag0++;
@@ -274,30 +301,30 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
         }
     }
 }
+static int flag10 = 0, flag11 = 0, flag12 = 0, flag13 = 0, flag14 = 0;
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan,uint32_t RxFifo1ITs)
 {
-
-    FDCAN_RxHeaderTypeDef rx_header;
-    uint8_t rx_data[8];
-    while (HAL_FDCAN_GetRxFifoFillLevel(hfdcan, FDCAN_RX_FIFO1)) // FIFO不为空,有可能在其他中断时有多帧数据进入
+    flag10++;
+    uint8_t max_loop = 32;  // 限制最大循环次数（建议为Rx FIFO深度的2倍）
+    while (HAL_FDCAN_GetRxFifoFillLevel(hfdcan, FDCAN_RX_FIFO1) && max_loop-- > 0)
     {
-        HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &rx_header, rx_data);
-        // TODO: 2024 RMUL 期间部署上下板间通讯，之后需要优化调整
-        if (hfdcan == &hfdcan1)
-        {
+        if (hfdcan == &hfdcan1) {
             fdcan1_rx_callback();
-            flag1++;
+            flag11++;
         }
-        if (hfdcan == &hfdcan2) {
+        else if (hfdcan == &hfdcan2) {
             fdcan2_rx_callback();
-            flag2++;
-            //             if(dji_motot_rx_callback(rx_header.Identifier, rx_data) == 0)
+            flag12++;
         }
         else if (hfdcan == &hfdcan3) {
             fdcan3_rx_callback();
-            flag3++;
-
-            //             if(dji_motot_rx_callback(rx_header.Identifier, rx_data) == 0)
+            flag13++;
+        } else {
+            flag14++;
+            // 异常情况：读取并丢弃数据，避免FIFO溢出
+            FDCAN_RxHeaderTypeDef dummy_header;
+            uint8_t dummy_data[8];
+            HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &dummy_header, dummy_data);
         }
     }
 
@@ -310,18 +337,17 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
     if(ErrorStatusITs & FDCAN_IR_BO)
     {
         CLEAR_BIT(hfdcan->Instance->CCCR, FDCAN_CCCR_INIT);
-        if (hfdcan == &hfdcan3 && (ErrorStatusITs & FDCAN_IR_BO))
-        {
-            // 重置CAN3（关键步骤）
-            HAL_FDCAN_DeInit(hfdcan);
-            MX_FDCAN3_Init();  // 重新初始化
-            can_filter_init();  // 重新配置滤波器
-        }
-
+        // 所有CAN的Bus-Off都复位，不只是CAN3
+        HAL_FDCAN_DeInit(hfdcan);
+        if(hfdcan == &hfdcan1) MX_FDCAN1_Init();
+        else if(hfdcan == &hfdcan2) MX_FDCAN2_Init();
+        else if(hfdcan == &hfdcan3) MX_FDCAN3_Init();
+        can_filter_init();
+        bsp_can_init();
     }
     if(ErrorStatusITs & FDCAN_IR_EP)
     {
-        if(hfdcan == &hfdcan3 )
+        if(hfdcan == &hfdcan1 )
         {
             MX_FDCAN1_Init();
             bsp_can_init();
@@ -333,20 +359,11 @@ void HAL_FDCAN_ErrorStatusCallback(FDCAN_HandleTypeDef *hfdcan, uint32_t ErrorSt
         }
         else if(hfdcan == &hfdcan3 )
         {
-            MX_FDCAN2_Init();
+            MX_FDCAN3_Init();
             bsp_can_init();
         }
-
-
     }
-
 }
 
-//
-//
-//
-//
-//
-//
-//
+
 
