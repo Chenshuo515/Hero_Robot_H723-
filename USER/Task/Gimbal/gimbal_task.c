@@ -37,7 +37,7 @@ static struct gimbal_controller_t{
 motor_config_t gimbal_motor_config[GIM_MOTOR_NUM] = {
         {
                 .motor_type = GM6020,
-                .can_name = CAN_GIMBAL,
+                .can_name = CAN_CHASSIS,
                 .rx_id = YAW_MOTOR_ID,
                 .controller = &gim_controller[YAW],
         },
@@ -73,6 +73,7 @@ auto_relative_angle_status_e auto_relative_angle_status=RELATIVE_ANGLE_TRANS;
 
 /* ------------------------------------------------ 云台线程入口 ----------------------------------------------------- */
 static float gim_dt;
+UBaseType_t GimbalHighWaterMark;
 
 /* USER CODE END Header_ChassisTask_Entry */
 void GimbalTask_Entry(void const * argument)
@@ -91,6 +92,8 @@ void GimbalTask_Entry(void const * argument)
 
     for (;;)
     {
+        // 查询当前任务的堆栈高水位线（传NULL）
+        GimbalHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
         gim_start = dwt_get_time_ms();
         /* 更新该线程所有的订阅者 */
         gimbal_sub_pull();
@@ -150,7 +153,7 @@ void GimbalTask_Entry(void const * argument)
                 }
                 else
                 {
-                    gim_fdb.back_mode = BACK_IS_OK;
+                    gim_fdb.back_mode = BACK_STEP;
                 }
                 break;
             case GIMBAL_GYRO:
@@ -183,7 +186,20 @@ void GimbalTask_Entry(void const * argument)
                 // 底盘相对于云台归中值的角度，取负
                 gim_fdb.yaw_relative_angle = -yaw_motor_relive;
                 break;
+            case GIMBAL_ECD:
+                gim_motor_ref[YAW] = gim_cmd.yaw;
+                gim_motor_ref[PITCH] = gim_cmd.pitch;
+                // 底盘相对于云台归中值的角度，取负
+                gim_fdb.yaw_relative_angle = -yaw_motor_relive;
+                gim_fdb.yaw_offset_angle=ins_data.yaw;
+                gim_fdb.pit_offset_angle=ins_data.pitch;
+                if (auto_staus==0)
+                {
+                    auto_staus=1;
+                    auto_relative_angle_status=RELATIVE_ANGLE_TRANS;
+                }
 
+                break;
             default:
                 for (uint8_t i = 0; i < GIM_MOTOR_NUM; i++)
                 {
@@ -317,6 +333,11 @@ static int16_t motor_control_yaw(dji_motor_measure_t measure){
             get_speed = ins_data.gyro[Z];
             get_angle = ins_data.yaw_total_angle - gim_fdb.yaw_offset_angle_total;
             break;
+        case GIMBAL_ECD:
+            pid_speed = gim_controller[YAW].pid_speed_imu;
+            pid_angle = gim_controller[YAW].pid_angle_imu;
+            get_speed = ins_data.gyro[Z];
+            get_angle = -yaw_motor_relive;
         default:
             break;
     }
@@ -332,13 +353,13 @@ static int16_t motor_control_yaw(dji_motor_measure_t measure){
     }
 
 
-    if(gim_cmd.ctrl_mode == GIMBAL_INIT)  // 编码器闭环
+    if(gim_cmd.ctrl_mode == GIMBAL_INIT || gim_cmd.ctrl_mode == GIMBAL_ECD)  // 编码器闭环
     {
         /* 注意负号 */
-        pid_angle->ITerm =0;
-        pid_angle->Iout =0;
-        pid_speed->ITerm =0;
-        pid_speed->Iout =0;
+//        pid_angle->ITerm =0;
+//        pid_angle->Iout =0;
+//        pid_speed->ITerm =0;
+//        pid_speed->Iout =0;
         pid_out_angle = pid_calculate(pid_angle, get_angle, gim_motor_ref[YAW]);  // 编码器增长方向与imu相反
         send_data = pid_calculate(pid_speed, get_speed, pid_out_angle);     // 电机转动正方向与imu相反
     }

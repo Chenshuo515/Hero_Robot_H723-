@@ -59,6 +59,7 @@
 #include "supercap_task.h"
 #endif /* BSP_USING_SUPERCAP_TASK */
 
+
 /* --------------------------------- 话题的数据格式 -------------------------------- */
 struct ins_msg
 {

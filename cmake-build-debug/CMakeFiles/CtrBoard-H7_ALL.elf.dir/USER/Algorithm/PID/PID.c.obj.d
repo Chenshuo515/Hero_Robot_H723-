@@ -18,32 +18,7 @@ CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Algorithm/PID/PID.c.obj: \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_locale.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\strings.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\string.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\malloc.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\machine\malloc.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Algorithm\PID\pid.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\math.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS/cmsis_os.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/FreeRTOS.h \
- d:\yycx\toolchain\gcc.arm-none\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\stdint.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_intsup.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_stdint.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Core\Inc/FreeRTOSConfig.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/projdefs.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/portable.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/deprecated_definitions.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F/portmacro.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/mpu_wrappers.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\reent.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/task.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/list.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/timers.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/task.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/queue.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/semphr.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/queue.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/event_groups.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/timers.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Task\Robot_Config/rm_config.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Core\Inc/stm32h7xx_hal_conf.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_rcc.h \
@@ -51,12 +26,17 @@ CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Algorithm/PID/PID.c.obj: \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Device\ST\STM32H7xx\Include/stm32h7xx.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Device\ST\STM32H7xx\Include/stm32h723xx.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Include/core_cm7.h \
+ d:\yycx\toolchain\gcc.arm-none\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h \
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\stdint.h \
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_intsup.h \
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_stdint.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Include/cmsis_version.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Include/cmsis_compiler.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Include/cmsis_gcc.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Include/mpu_armv7.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\CMSIS\Device\ST\STM32H7xx\Include/system_stm32h7xx.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/Legacy/stm32_hal_legacy.h \
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\math.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_rcc_ex.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_gpio.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_gpio_ex.h \
@@ -82,5 +62,24 @@ CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Algorithm/PID/PID.c.obj: \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_pcd.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_ll_usb.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Drivers\STM32H7xx_HAL_Driver\Inc/stm32h7xx_hal_pcd_ex.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\CMSIS_RTOS/cmsis_os.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/FreeRTOS.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Core\Inc/FreeRTOSConfig.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/projdefs.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/portable.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/deprecated_definitions.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\portable\GCC\ARM_CM4F/portmacro.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/mpu_wrappers.h \
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\reent.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/task.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/list.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/timers.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/task.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/queue.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/semphr.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/queue.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/event_groups.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Middlewares\Third_Party\FreeRTOS\Source\include/timers.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Algorithm\PID\pid.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Dwt/drv_dwt.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\Core\Inc/main.h

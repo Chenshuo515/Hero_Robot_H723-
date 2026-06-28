@@ -57,6 +57,7 @@ static struct ins_msg ins_data;
 /* --------------------------------------------- Ins线程入口  --------------------------------------------------- */
 static float ins_dt;
 static uint32_t count = 0;
+UBaseType_t insuxHighWaterMark;
 
 void InsTask_Entry(void const * argument)
 {
@@ -76,12 +77,15 @@ void InsTask_Entry(void const * argument)
         ;
     }
 
-    dt = dwt_get_delta(&ins_dwt);
+
     ins_init();
     ins_pub = pub_register("ins_msg", sizeof(struct ins_msg));
 
     for (;;)
     {
+        /* ------------------------------ 调试监测线程调度 ------------------------------ */
+        ins_start = dwt_get_time_ms();
+        insuxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
         dt = dwt_get_delta(&ins_dwt);
         BMI088_read(ins.gyro, ins.accel, &temp);
@@ -154,7 +158,10 @@ void InsTask_Entry(void const * argument)
 
         count++;
 
-
+/* ------------------------------ 调试监测线程调度 ------------------------------ */
+        ins_dt = dwt_get_time_ms() - ins_start;
+        if (ins_dt > 1)
+            printf("Ins Task is being DELAY! dt = [%f]", &ins_dt);
         osDelay(1);
     }
 }

@@ -7,6 +7,8 @@
 
 static float motor_dt;
 uint32_t tec,rec;
+
+UBaseType_t MotorHighWaterMark;
 /* USER CODE END Header_TransmissionTask_Entry */
 void MotorTask_Entry(void const * argument)
 {
@@ -22,9 +24,6 @@ void MotorTask_Entry(void const * argument)
          tec = (hfdcan3.Instance->ECR & FDCAN_ECR_TEC) >> FDCAN_ECR_TEC_Pos;
          rec = (hfdcan3.Instance->ECR & FDCAN_ECR_REC) >> FDCAN_ECR_REC_Pos;
         motor_start = dwt_get_time_ms();
-        // static uint8_t cnt = 0; 设定不同电机的任务频率
-        // if(cnt%5==0) //200hz
-        // if(cnt%10==0) //100hz
 
 #ifdef BSP_USING_DJI_MOTOR
         dji_motor_control();
@@ -35,6 +34,9 @@ void MotorTask_Entry(void const * argument)
 #ifdef BSP_USING_HT_MOTOR
         ht_motor_control();
 #endif /* BSP_USING_HT_MOTOR */
+
+        MotorHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+
 
         /* 用于调试监测线程调度使用 */
         motor_dt = dwt_get_time_ms() - motor_start;

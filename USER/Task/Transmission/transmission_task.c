@@ -60,6 +60,7 @@ uint8_t *r_buffer_point; //用于清除环形缓冲区buffer的指针
 static float trans_dt;
 static float openfire;
 int8_t a;
+UBaseType_t transuxHighWaterMark;
 
 /* USER CODE END Header_TransmissionTask_Entry */
 void TransmissionTask_Entry(void const * argument)
@@ -90,6 +91,8 @@ void TransmissionTask_Entry(void const * argument)
         trans_sub_pull();
         /* 发布数据更新 */
         trans_pub_push();
+        transuxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+
 /*--------------------------------------------------具体需要发送的数据--------------------------------- */
         if((dwt_get_time_ms()-heart_dt)>=HEART_BEAT)
         {

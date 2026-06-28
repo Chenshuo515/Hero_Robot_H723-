@@ -24,9 +24,9 @@ static void chassis_pub_push(void);
 static void chassis_sub_pull(void);
 extern struct referee_fdb_msg referee_fdb;
 /* ------------------------------------------------- 电机控制相关 ------------------------------------------------------ */
-static pid_obj_t *follow_pid; // 用于底盘跟随云台计算vw
-static pid_config_t chassis_follow_config = INIT_PID_CONFIG(CHASSIS_KP_V_FOLLOW, CHASSIS_KI_V_FOLLOW, CHASSIS_KD_V_FOLLOW, CHASSIS_INTEGRAL_V_FOLLOW, CHASSIS_MAX_V_FOLLOW,
-                                                            (PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement));
+//static pid_obj_t *follow_pid; // 用于底盘跟随云台计算vw
+//static pid_config_t chassis_follow_config = INIT_PID_CONFIG(CHASSIS_KP_V_FOLLOW, CHASSIS_KI_V_FOLLOW, CHASSIS_KD_V_FOLLOW, CHASSIS_INTEGRAL_V_FOLLOW, CHASSIS_MAX_V_FOLLOW,
+//                                                            (PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement));
 
 static struct chassis_controller_t
 {
@@ -65,11 +65,12 @@ static void (*chassis_calc_moto_speed)(struct chassis_cmd_msg *cmd, int16_t* out
 
 
 /* ---------------------------------------------- 其余变量与函数声明 ---------------------------------------------------- */
-float follow_err,vw;
+//float follow_err,vw;
 static void chassis_motor_init();
 static void absolute_cal(struct chassis_cmd_msg *cmd, float angle);
 static float chassis_dt;
 
+UBaseType_t ChassisHighWaterMark;
 
 /* ------------------------------------------------- 底盘线程入口 ------------------------------------------------------ */
 void ChassisTask_Entry(void const * argument)
@@ -83,7 +84,7 @@ void ChassisTask_Entry(void const * argument)
     can_filter_init();
 
     for(;;)
-    {
+    {        ChassisHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
         /* 更新该线程所有的订阅者 */
         chassis_sub_pull();
 
@@ -105,15 +106,18 @@ void ChassisTask_Entry(void const * argument)
                     }
                     break;
                 case CHASSIS_FOLLOW_GIMBAL:
-                    follow_err = chassis_cmd.offset_angle;
-                    if (follow_err < 5 && follow_err >= 0) {
-                        chassis_cmd.offset_angle = follow_err * follow_err / 5;
-                    } else if (follow_err < 0 && follow_err > -5) {
-                        chassis_cmd.offset_angle = -follow_err * follow_err / 5;
-                    }
-
-                    vw = -pid_calculate(follow_pid, chassis_cmd.offset_angle, SIDEWAYS_ANGLE);
-                    chassis_cmd.vw = vw;
+//                    follow_err = chassis_cmd.offset_angle;
+//                    if (follow_err < 5 && follow_err >= 0)
+//                    {
+//                        chassis_cmd.offset_angle = follow_err * follow_err / 5;
+//                    }
+//                    else if (follow_err < 0 && follow_err > -5)
+//                    {
+//                        chassis_cmd.offset_angle = -follow_err * follow_err / 5;
+//                    }
+//
+//                    vw = -pid_calculate(follow_pid, chassis_cmd.offset_angle, SIDEWAYS_ANGLE);
+//                    chassis_cmd.vw = vw;
 
                     /* 底盘运动学解算 */
                     absolute_cal(&chassis_cmd, chassis_cmd.offset_angle);
@@ -324,7 +328,7 @@ static void chassis_motor_init()
         chassis_motor[i] = dji_motor_register(&chassis_motor_config[i], motor_control[i]);
     }
 
-    follow_pid = pid_register(&chassis_follow_config);
+//    follow_pid = pid_register(&chassis_follow_config);
 }
 
 /**

@@ -50,7 +50,6 @@
 osThreadId AlgorithmTaskHandle;
 osThreadId ChassisTaskHandle;
 osThreadId CmdTaskHandle;
-osThreadId DMmotorTaskHandle;
 osThreadId RefereeTaskHandle;
 osThreadId TranmissionTaskHandle;
 osThreadId USARTRecTaskHandle;
@@ -68,7 +67,6 @@ osThreadId SupercapTaskHandle;
 void AlgorithmTask_Entry(void const * argument);
 void ChassisTask_Entry(void const * argument);
 void CmdTask_Entry(void const * argument);
-void DMmotorTask_Entry(void const * argument);
 void RefereeTask_Entry(void const * argument);
 void TransmissionTask_Entry(void const * argument);
 void USARTRecTask_Entry(void const * argument);
@@ -141,7 +139,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of AlgorithmTask */
-  osThreadDef(AlgorithmTask, AlgorithmTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(AlgorithmTask, AlgorithmTask_Entry, osPriorityHigh, 0, 1024);
   AlgorithmTaskHandle = osThreadCreate(osThread(AlgorithmTask), NULL);
 
   /* definition and creation of ChassisTask */
@@ -149,15 +147,11 @@ void MX_FREERTOS_Init(void) {
   ChassisTaskHandle = osThreadCreate(osThread(ChassisTask), NULL);
 
   /* definition and creation of CmdTask */
-  osThreadDef(CmdTask, CmdTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(CmdTask, CmdTask_Entry, osPriorityRealtime, 0, 2048);
   CmdTaskHandle = osThreadCreate(osThread(CmdTask), NULL);
 
-  /* definition and creation of DMmotorTask */
-  osThreadDef(DMmotorTask, DMmotorTask_Entry, osPriorityHigh, 0, 2048);
-  DMmotorTaskHandle = osThreadCreate(osThread(DMmotorTask), NULL);
-
   /* definition and creation of RefereeTask */
-  osThreadDef(RefereeTask, RefereeTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(RefereeTask, RefereeTask_Entry, osPriorityNormal, 0, 2048);
   RefereeTaskHandle = osThreadCreate(osThread(RefereeTask), NULL);
 
   /* definition and creation of TranmissionTask */
@@ -169,23 +163,23 @@ void MX_FREERTOS_Init(void) {
   USARTRecTaskHandle = osThreadCreate(osThread(USARTRecTask), NULL);
 
   /* definition and creation of GimbalTask */
-  osThreadDef(GimbalTask, GimbalTask_Entry, osPriorityHigh, 0, 1024);
+  osThreadDef(GimbalTask, GimbalTask_Entry, osPriorityHigh, 0, 768);
   GimbalTaskHandle = osThreadCreate(osThread(GimbalTask), NULL);
 
   /* definition and creation of ShootTask */
-  osThreadDef(ShootTask, ShootTask_Entry, osPriorityHigh, 0, 1024);
+  osThreadDef(ShootTask, ShootTask_Entry, osPriorityHigh, 0, 512);
   ShootTaskHandle = osThreadCreate(osThread(ShootTask), NULL);
 
   /* definition and creation of InsTask */
-  osThreadDef(InsTask, InsTask_Entry, osPriorityHigh, 0, 2048);
+  osThreadDef(InsTask, InsTask_Entry, osPriorityRealtime, 0, 2048);
   InsTaskHandle = osThreadCreate(osThread(InsTask), NULL);
 
   /* definition and creation of MotorTask */
-  osThreadDef(MotorTask, MotorTask_Entry, osPriorityIdle, 0, 2048);
+  osThreadDef(MotorTask, MotorTask_Entry, osPriorityHigh, 0, 2048);
   MotorTaskHandle = osThreadCreate(osThread(MotorTask), NULL);
 
   /* definition and creation of SupercapTask */
-  osThreadDef(SupercapTask, Supercap_Entry, osPriorityIdle, 0, 768);
+  osThreadDef(SupercapTask, Supercap_Entry, osPriorityNormal, 0, 512);
   SupercapTaskHandle = osThreadCreate(osThread(SupercapTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -248,24 +242,6 @@ __weak void CmdTask_Entry(void const * argument)
     osDelay(1);
   }
   /* USER CODE END CmdTask_Entry */
-}
-
-/* USER CODE BEGIN Header_DMmotorTask_Entry */
-/**
-* @brief Function implementing the DMmotorTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_DMmotorTask_Entry */
-__weak void DMmotorTask_Entry(void const * argument)
-{
-  /* USER CODE BEGIN DMmotorTask_Entry */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END DMmotorTask_Entry */
 }
 
 /* USER CODE BEGIN Header_RefereeTask_Entry */

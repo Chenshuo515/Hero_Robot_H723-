@@ -146,18 +146,19 @@ void supercap_task_init(void)
 
 
 }
+static float supercap_dt;
 
 /**
  * @brief 超级电容任务主循环
  * @param argument 未使用
  */
+ UBaseType_t superuxHighWaterMark;
 /* USER CODE END Header_Supercap_Entry */
 void Supercap_Entry(void const * argument)
 {
     /* USER CODE BEGIN Supercap_Entry */
     /* Infinite loop */
     /* 等待系统稳定 */
-    static float supercap_dt;
     static float supercap_start;
 
     /* 初始化 */
@@ -165,6 +166,7 @@ void Supercap_Entry(void const * argument)
     for(;;)
     {
         supercap_start = dwt_get_time_ms();
+        superuxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
         /* 1. 获取控制指令 */
         sub_get_msg(sub_cap, &cap_cmd);

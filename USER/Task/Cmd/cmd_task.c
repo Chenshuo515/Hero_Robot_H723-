@@ -44,6 +44,10 @@ static void cmd_sub_pull(void);
 static int spin_cnt=0;
 /*部署模式标志位*/
 static int deploy_flag = 0;
+float follow_err,vw;
+static pid_obj_t *follow_pid; // 用于底盘跟随云台计算vw
+static pid_config_t chassis_follow_config = INIT_PID_CONFIG(CHASSIS_KP_V_FOLLOW, CHASSIS_KI_V_FOLLOW, CHASSIS_KD_V_FOLLOW, CHASSIS_INTEGRAL_V_FOLLOW, CHASSIS_MAX_V_FOLLOW,
+                                                            (PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivative_On_Measurement));
 
 /* ---------------------------------------------------- 云台相关 ------------------------------------------------------ */
 /*舵机控制倍镜旋转标志位*/
@@ -109,14 +113,17 @@ static void remote_to_cmd_pc_DT7(void);
 
 
 /* ------------------------------------------------- cmd线程入口 ------------------------------------------------------ */
-static float gim_dt;
+static float cmd_dt;
+UBaseType_t cmduxHighWaterMark;
 
 void CmdTask_Entry(void const * argument)
 {
-    static float gim_start;
+    static float cmd_start;
 
     cmd_pub_init();
     cmd_sub_init();
+
+    follow_pid = pid_register(&chassis_follow_config);
 
 
     km_vx_ramp = ramp_register(0, 200); //2500000
@@ -127,6 +134,9 @@ void CmdTask_Entry(void const * argument)
     First_Order_Filter_Init(&mouse_x_lpf,0.014f,0.1f);
     First_Order_Filter_Init(&mouse_y_lpf,0.014f,0.1f);
 
+#ifdef BSP_USING_RC_KEYBOARD
+    PC_Handle_kb();//处理PC端键鼠控制
+#endif
 
 #ifdef BSP_USING_RC_DBUS
     /* 初始化拨杆为上位 */
@@ -143,8 +153,9 @@ void CmdTask_Entry(void const * argument)
 
     for (;;)
     {
-        gim_start = dwt_get_time_ms();
+        cmd_start = dwt_get_time_ms();
         cmd_sub_pull();
+        cmduxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
     #ifdef BSP_USING_RC_DBUS
             remote_to_cmd_pc_DT7();
@@ -155,7 +166,7 @@ void CmdTask_Entry(void const * argument)
         /* 更新发布该线程的msg */
         cmd_pub_push();
         /* 用于调试监测线程调度使用 */
-        gim_dt = dwt_get_time_ms() - gim_start;
+        cmd_dt = dwt_get_time_ms() - cmd_start;
         vTaskDelay(1);
     }
 }
@@ -249,8 +260,8 @@ static void remote_to_cmd_pc_DT7(void)
     /*云台命令*/
     if (gim_cmd.ctrl_mode==GIMBAL_GYRO)
     {
-        gim_cmd.yaw +=   (float)rc_now->ch3 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_YAW ;//+ fx * KB_RATIO * GIMBAL_PC_MOVE_RATIO_YAW;
-        gim_cmd.pitch += (float)rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT;//- fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT;
+        gim_cmd.yaw +=   (float)rc_now->ch3 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_YAW + fx * KB_RATIO * GIMBAL_PC_MOVE_RATIO_YAW;
+        gim_cmd.pitch += (float)rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT - fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT;
         gyro_yaw_inherit =gim_cmd.yaw;
         gyro_pitch_inherit =gim_cmd.pitch;
         mouse_accumulate_x=0;
@@ -264,11 +275,11 @@ static void remote_to_cmd_pc_DT7(void)
             trans_fdb.pitch=0;
         }
         //mouse_accumulate_x+=fx * KB_RATIO * GIMBAL_PC_MOVE_RATIO_YAW; /*鼠标x轴的自瞄补偿，测试结果建议注释掉暂不使用*/
-        //mouse_accumulate_y-=fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT; //建议打开
+        mouse_accumulate_y-=fy * KB_RATIO * GIMBAL_PC_MOVE_RATIO_PIT; //建议打开
         if(trans_fdb.roll != 2)
         {
             gim_cmd.yaw = trans_fdb.yaw+gyro_yaw_inherit + mouse_accumulate_x/* + 150 * rc_now->ch3 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_YAW*/;//上位机自瞄
-            gim_cmd.pitch = trans_fdb.pitch+gyro_pitch_inherit + mouse_accumulate_y/* +100 * rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT */;//上位机自瞄
+            gim_cmd.pitch = trans_fdb.pitch+gyro_pitch_inherit + mouse_accumulate_y /*+100 * rc_now->ch4 * RC_RATIO * GIMBAL_RC_MOVE_RATIO_PIT*/ ;//上位机自瞄
         }
 
     }
@@ -390,6 +401,21 @@ static void remote_to_cmd_pc_DT7(void)
             spin_cnt =0;
         }
 
+    }
+    else if(chassis_cmd.ctrl_mode==CHASSIS_FOLLOW_GIMBAL)
+    {
+        follow_err = chassis_cmd.offset_angle;
+        if (follow_err < 5 && follow_err >= 0)
+        {
+            chassis_cmd.offset_angle = follow_err * follow_err / 5;
+        }
+        else if (follow_err < 0 && follow_err > -5)
+        {
+            chassis_cmd.offset_angle = -follow_err * follow_err / 5;
+        }
+
+        vw = -pid_calculate(follow_pid, chassis_cmd.offset_angle, SIDEWAYS_ANGLE);
+        chassis_cmd.vw = vw;
     }
 
     /*TODO:--------------------------------------------------发射模块状态机--------------------------------------------------------------*/
@@ -604,7 +630,7 @@ static void remote_to_cmd_pc_DT7(void)
     if(rc_now->wheel >= 600 && rc_now->sw2==RC_MI)
     {
         cnt_flag++;
-        if(cnt_flag >=800)
+        if(cnt_flag >=400)
         {
             cnt_flag =0;
             if(deploy_flag == 0)

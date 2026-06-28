@@ -11,14 +11,12 @@
 //#define BSP_USING_MOTOR
 #define BSP_USING_DJI_MOTOR
 //#define BSP_USING_INA226
-//#define BSP_USING_PS_MSG
-//#define BSP_USING_MAG
-//#define BSP_USING_IST8310
+#define BSP_USING_MSG
 //#define BSP_USING_IMU
 //#define BSP_USING_BMI088
 //#define BSP_BMI088_CALI
 #define BSP_USING_RC_DBUS
-//#define BSP_USING_RC_KEYBOARD
+#define BSP_USING_RC_KEYBOARD
 #define BSP_USING_SUPERCAP
 
 
@@ -42,6 +40,7 @@
 #define BSP_USING_TRANSMISSION_TASK
 #define BSP_USING_SHOOT_TASK
 #define BSP_USING_REFEREE_TASK
+
 #ifdef BSP_USING_SUPERCAP
     #define BSP_USING_SUPERCAP_TASK
 #endif
@@ -54,7 +53,6 @@
 
 #define CPU_FREQUENCY 480     /* CPU主频(mHZ) */
 
-#define BSP_CHASSIS_LEG_MODE
 
 #include "stm32h7xx_hal.h" // 使用的芯片
 #include "cmsis_os.h" // 使用的 OS 头文件
@@ -73,6 +71,7 @@ extern FDCAN_HandleTypeDef hfdcan3;
 
 /* 底盘和云台分别对应的 can 总线 */
 #define CAN_CHASSIS    "hfdcan1"
+#define CAN_OTHER      "hfdcan2"
 #define CAN_GIMBAL     "hfdcan3"
 
 /* ------------------------------------------------------- IMU相关 ------------------------------------------------ */
@@ -133,9 +132,9 @@ extern FDCAN_HandleTypeDef hfdcan3;
 /* 底盘轮子周长(mm) */
 #define WHEEL_PERIMETER   478
 
-#define LENGTH_A 260 //底盘长的一半(mm)
-#define LENGTH_B 200 //底盘宽的一半(mm)
-#define LENGTH_RADIUS 390 //底盘半径(mm)
+#define LENGTH_A 238 //底盘长的一半(mm)
+#define LENGTH_B 232 //底盘宽的一半(mm)
+#define LENGTH_RADIUS 332 //底盘半径(mm)
 /******** 底盘电机使用3508 *******/
 /* 3508底盘电机减速比 */
 #define CHASSIS_DECELE_RATIO (1.0f/19.0f)
@@ -166,7 +165,7 @@ extern FDCAN_HandleTypeDef hfdcan3;
 #define CHASSIS_MAX_V_MOTOR             16384
 // TODO: 参数待整定
 /* 跟随云台PID */
-#define CHASSIS_KP_V_FOLLOW             0.07f
+#define CHASSIS_KP_V_FOLLOW             0.1f
 #define CHASSIS_KI_V_FOLLOW             0.0f
 #define CHASSIS_KD_V_FOLLOW             0.0008f
 #define CHASSIS_INTEGRAL_V_FOLLOW       0
@@ -187,15 +186,15 @@ extern FDCAN_HandleTypeDef hfdcan3;
 #define SIDEWAYS_ANGLE   36
 #define CENTER_ECD_YAW   3818         //云台yaw轴编码器归中值(侧身)
 #else
-#define CENTER_ECD_YAW   2069         //云台yaw轴编码器归中值
+#define CENTER_ECD_YAW   2008         //云台yaw轴编码器归中值
 #define SIDEWAYS_ANGLE   0
 #endif
 
 
 /* pitch轴最大仰角 */
-#define PIT_ANGLE_MAX        22.85f
+#define PIT_ANGLE_MAX        20.0f
 /* pitch轴最大俯角 */
-#define PIT_ANGLE_MIN        -19.0f
+#define PIT_ANGLE_MIN        -12.0f
 
 /* 云台控制周期 (ms) */
 #define GIMBAL_PERIOD 1
@@ -207,23 +206,23 @@ extern FDCAN_HandleTypeDef hfdcan3;
 /* -------------------------------- 云台电机PID参数 ------------------------------- */
 /* 云台yaw轴电机PID参数 */
 /* imu速度环 */
-#define YAW_KP_V_IMU             4500
+#define YAW_KP_V_IMU             12000
 #define YAW_KI_V_IMU             200
 #define YAW_KD_V_IMU             0.005f
-#define YAW_INTEGRAL_V_IMU       200
+#define YAW_INTEGRAL_V_IMU       2000
 #define YAW_MAX_V_IMU            25000
 /* imu角度环 */
 
-#define YAW_KP_A_IMU             0.08f   //降低响应速度减小超调以提升稳定性
+#define YAW_KP_A_IMU             0.15f   //降低响应速度减小超调以提升稳定性
 #define YAW_KI_A_IMU             0.005f
-#define YAW_KD_A_IMU             0.001f //0.005响应好，但是归中有振动
+#define YAW_KD_A_IMU             0.002f //0.005响应好，但是归中有振动
 #define YAW_INTEGRAL_A_IMU       0.2f
 #define YAW_MAX_A_IMU            5
 /* auto速度环 */
-#define YAW_KP_V_AUTO            4500
+#define YAW_KP_V_AUTO            12000
 #define YAW_KI_V_AUTO            200
 #define YAW_KD_V_AUTO            0.005f
-#define YAW_INTEGRAL_V_AUTO      200
+#define YAW_INTEGRAL_V_AUTO      2000
 #define YAW_MAX_V_AUTO           25000
 /* auto角度环 */
 #define YAW_KP_A_AUTO            0.2f
@@ -242,20 +241,20 @@ extern FDCAN_HandleTypeDef hfdcan3;
 
 /* imu角度环 */
 
-#define PITCH_KP_A_IMU           0.3f
+#define PITCH_KP_A_IMU           0.2f
 #define PITCH_KI_A_IMU           0.05f
 #define PITCH_KD_A_IMU           0.005f
 #define PITCH_INTEGRAL_A_IMU     1.0f
 #define PITCH_MAX_A_IMU          10
 
 /* auto速度环 */
-#define PITCH_KP_V_AUTO          4000
+#define PITCH_KP_V_AUTO          1500
 #define PITCH_KI_V_AUTO          100
 #define PITCH_KD_V_AUTO          0.01f
 #define PITCH_INTEGRAL_V_AUTO    1500
 #define PITCH_MAX_V_AUTO         16384
 /* auto角度环 */
-#define PITCH_KP_A_AUTO          0.35f
+#define PITCH_KP_A_AUTO          0.25f
 #define PITCH_KI_A_AUTO          0.05f
 #define PITCH_KD_A_AUTO          0.001f
 #define PITCH_INTEGRAL_A_AUTO    1.0f

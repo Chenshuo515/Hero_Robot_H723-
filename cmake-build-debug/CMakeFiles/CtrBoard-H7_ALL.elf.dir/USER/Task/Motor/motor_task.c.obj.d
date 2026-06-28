@@ -116,7 +116,6 @@ CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Motor/motor_task.c.obj: \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Dwt/drv_dwt.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Rc\Keyboard/keyboard.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Rc\Dbus/rc_dbus.h \
- D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Referee/referee_system.h \
  D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Msg/drv_msg.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\stdio.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\types.h \
@@ -130,4 +129,5 @@ CMakeFiles/CtrBoard-H7_ALL.elf.dir/USER/Task/Motor/motor_task.c.obj: \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\_pthreadtypes.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\sched.h \
  d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\machine\types.h \
- d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\stdio.h
+ d:\yycx\toolchain\gcc.arm-none\arm-none-eabi\include\sys\stdio.h \
+ D:\Users\Gleam\Desktop\project\Hero_robot\Hero_Robot_H723\USER\Module\Referee/referee_system.h

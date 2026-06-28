@@ -86,7 +86,7 @@ static int reverse_ref;
 /* ----------------------------------------------- 射击线程入口 --------------------------------------------------- */
 static float sht_dt;
 static int flag;
-
+UBaseType_t shootuxHighWaterMark;
 /**
  * @brief shoot线程入口函数
  */
@@ -110,6 +110,7 @@ void ShootTask_Entry(void const * argument)
         /* 更新该线程所有的订阅者 */
         shoot_sub_pull();
         /* 倍镜舵机控制 */
+        shootuxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 
 
         /* 电机控制启动 */
@@ -178,7 +179,7 @@ void ShootTask_Entry(void const * argument)
                         if(shoot_motor_ref[TRIGGER_MOTOR] - sht_controller[TRIGGER_MOTOR].pid_angle->Measure > TRIGGER_MOTOR_120_TO_ANGLE * 19 * 0.3)
                         {
                             flag = 3;
-                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时堵转了
+                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时堵转了,不能再转到拨弹
                         }
                         else if(reverse_ref !=0 && shoot_cmd.last_mode == SHOOT_REVERSE)
                         {
@@ -186,13 +187,13 @@ void ShootTask_Entry(void const * argument)
                             if(sht_controller[TRIGGER_MOTOR].pid_angle->Measure - reverse_ref > TRIGGER_MOTOR_120_TO_ANGLE * 19 * 0.4)
                             {
                                 flag = 5;
-                                shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时反转尚未完成
+                                shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR]; //此时反转尚未完成，保持期望角度，避免再次转动抵消反转
                             }
                         }
                         else
                         {
                             flag = 6;
-                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_120_TO_ANGLE * 19;
+                            shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] + TRIGGER_MOTOR_120_TO_ANGLE * 19; //正常转动
 
                             // shooter_barrel_heat_remain = msg->robot_status.shooter_barrel_heat_limit - msg->power_heat_data.shooter_42mm_barrel_heat;
                             // if(shooter_barrel_heat_remain >= 120
@@ -243,7 +244,7 @@ void ShootTask_Entry(void const * argument)
                 else
                 {
                     shoot_motor_ref[TRIGGER_MOTOR]= shoot_motor_ref[TRIGGER_MOTOR] - TRIGGER_MOTOR_120_TO_ANGLE * 19 * 2;
-                    reverse_ref = shoot_motor_ref[TRIGGER_MOTOR];
+                    reverse_ref = shoot_motor_ref[TRIGGER_MOTOR]; //记录反转后的期望角度
                 }
 
                 total_angle_flag = SHOOT_ANGLE_SINGLE;
@@ -261,8 +262,11 @@ void ShootTask_Entry(void const * argument)
         /* 更新发布该线程的msg */
         shoot_pub_push();
 
-
-        osDelay(1);
+/* ------------------------------ 调试监测线程调度 ------------------------------ */
+        sht_dt = dwt_get_time_ms() - sht_start;
+        if (sht_dt > 1)
+            printf("shoot Task is being DELAY! dt = [%f]", &sht_dt);
+        vTaskDelay(1);
 
     }
 }

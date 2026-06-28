@@ -96,6 +96,8 @@ void process_uart10_data(void) {
     }
 }
 
+UBaseType_t uartuxHighWaterMark;
+
 void USARTRecTask_Entry(void const * argument)
 {
     QueueSetMemberHandle_t xActivatedMember;
@@ -103,10 +105,19 @@ void USARTRecTask_Entry(void const * argument)
     USART1_DMA_Init();
     USART5_DMA_Init();
     USART10_DMA_Init();
+#ifdef BSP_USING_RC_DBUS
+    dbus_data_init();
+#else
+    //    sbus_data_init();
+#endif
+
     /* USER CODE BEGIN USARTRecTask_Entry */
     /* Infinite loop */
     for(;;)
     {
+
+        uartuxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
+
         // 阻塞等待任一信号量触发
         xActivatedMember = xQueueSelectFromSet(xUartQueueSet, portMAX_DELAY);
 

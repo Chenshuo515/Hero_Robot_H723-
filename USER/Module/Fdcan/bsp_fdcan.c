@@ -37,7 +37,6 @@ void bsp_can_init(void)
 
     HAL_FDCAN_ActivateNotification(&hfdcan3, FDCAN_RXActiveITs, 0);
 
-
 }
 /**
 ************************************************************************
@@ -230,18 +229,9 @@ uint8_t fdcanx_receive_fifo1(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
     return 0;
 }
 
-//__weak void fdcan1_rx_callback(void)
-//{
-//
-//}
-//
-//void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
-//{
-//    if (hfdcan == &hfdcan1)
-//    {
-//		fdcan1_rx_callback();
-//    }
-//}
+
+
+
 uint8_t rx_data1[8] = {0};
 uint16_t rec_id1;
 void fdcan1_rx_callback(void)
@@ -275,10 +265,14 @@ void fdcan3_rx_callback(void)
 
 
 static int flag0 = 0, flag1 = 0, flag2 = 0, flag3 = 0, flag4 = 0;
+static float cmd_dt;
+
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
+    static float cmd_start;
+    cmd_start = dwt_get_time_us();
     flag0++;
-    uint8_t max_loop = 32;  // 限制最大循环次数（建议为Rx FIFO深度的2倍）
+    uint8_t max_loop = 8;  // 限制最大循环次数（建议为Rx FIFO深度的2倍）
     while (HAL_FDCAN_GetRxFifoFillLevel(hfdcan, FDCAN_RX_FIFO0) && max_loop-- > 0)
     {
         if (hfdcan == &hfdcan1) {
@@ -300,12 +294,16 @@ void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
             HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &dummy_header, dummy_data);
         }
     }
+    cmd_dt = dwt_get_time_us() - cmd_start;
+
 }
 static int flag10 = 0, flag11 = 0, flag12 = 0, flag13 = 0, flag14 = 0;
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan,uint32_t RxFifo1ITs)
 {
+
     flag10++;
-    uint8_t max_loop = 32;  // 限制最大循环次数（建议为Rx FIFO深度的2倍）
+    uint8_t max_loop = 8;  // 限制最大循环次数（建议为Rx FIFO深度的2倍）
+
     while (HAL_FDCAN_GetRxFifoFillLevel(hfdcan, FDCAN_RX_FIFO1) && max_loop-- > 0)
     {
         if (hfdcan == &hfdcan1) {

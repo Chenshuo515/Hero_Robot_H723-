@@ -13,7 +13,8 @@ typedef enum
     GIMBAL_RELAX = 0,        //云台断电
     GIMBAL_INIT = 1,         //云台初始化
     GIMBAL_GYRO = 2,         //云台跟随imu闭环
-    GIMBAL_AUTO = 3          //云台自瞄
+    GIMBAL_AUTO = 3,         //云台自瞄
+    GIMBAL_ECD = 4           //云台跟随编码器闭环
 } gimbal_mode_e;
 
 /**

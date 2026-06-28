@@ -23,6 +23,6 @@ CMake Deprecation Warning:
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
 -- Minimal optimization, debug info included
--- Configuring done (3.7s)
--- Generating done (0.2s)
+-- Configuring done (6.8s)
+-- Generating done (0.1s)
 -- Build files have been written to: D:/Users/Gleam/Desktop/project/Hero_robot/Hero_Robot_H723/cmake-build-debug

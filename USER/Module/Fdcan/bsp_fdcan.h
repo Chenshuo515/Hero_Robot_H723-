@@ -2,7 +2,8 @@
 #define __BSP_FDCAN_H__
 #include "main.h"
 #include "fdcan.h"
-
+#include "FreeRTOS.h"
+#include "queue.h"
 #define hcan_t FDCAN_HandleTypeDef
 
 #define CAN_CLASS   0
@@ -27,7 +28,6 @@ void fdcan1_rx_callback(void);
 void fdcan2_rx_callback(void);
 void fdcan3_rx_callback(void);
 
-uint8_t CAN_send(FDCAN_HandleTypeDef *can, uint32_t send_id, uint8_t data[]);
 
 
 #endif /* __BSP_FDCAN_H_ */
